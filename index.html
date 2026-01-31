@@ -82,14 +82,20 @@
 
                 // Добавляем обработчик клика
                 cell.onclick = () => {
-                    if (cell.classList.contains("work")) {
-                        cell.classList.remove("work");
-                        cell.classList.add("off");
-                    } else if (cell.classList.contains("off")) {
-                        cell.classList.remove("off");
-                        cell.classList.add("empty");
-                    } else {
+                    const choice = prompt("Выберите: рабочий или выходной (введите 'рабочий' или 'выходной')");
+
+                    if (choice === "рабочий") {
+                        cell.classList.remove("off", "empty");
                         cell.classList.add("work");
+                        cell.innerHTML = `<strong>${weekDays[d]}</strong><br>10-22`;
+                    } else if (choice === "выходной") {
+                        cell.classList.remove("work", "empty");
+                        cell.classList.add("off");
+                        cell.innerHTML = `<strong>${weekDays[d]}</strong><br><strong>В</strong>`;
+                    } else {
+                        cell.classList.remove("work", "off");
+                        cell.classList.add("empty");
+                        cell.textContent = weekDays[d];
                     }
                 };
 
