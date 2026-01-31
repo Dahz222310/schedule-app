@@ -2,14 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <title>График работы на месяц</title>
+    <title>Хотелось бы работать так</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
         .form h2 { margin-top: 0; }
 
-        /* Заголовок дней недели */
         .week-header {
             display: flex;
             gap: 10px;
@@ -23,7 +22,6 @@
             font-size: 14px;
         }
 
-        /* Дни месяца в сетке */
         .month-grid {
             display: flex;
             flex-wrap: wrap;
@@ -31,7 +29,7 @@
         }
         .day-cell {
             flex: 1 1 calc(14.28% - 10px);
-            min-height: 60px;
+            min-height: 70px;
             padding: 8px 4px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -43,9 +41,13 @@
         .day-cell.work { background-color: #a5d6a7; border-color: #4caf50; }
         .day-cell.off  { background-color: #ef9a9a; border-color: #f44336; }
         .day-cell.empty { background-color: #f5f5f5; border-color: #ccc; }
-        .day-cell.empty.inactive { background-color: #eee; border-color: #ddd; opacity: 0.6; }
+        .day-cell.empty.inactive {
+            background-color: #eee;
+            border-color: #ddd;
+            opacity: 0.5;
+            cursor: default;
+        }
 
-        /* Полупрозрачное окно */
         .modal {
             display: none;
             position: fixed;
@@ -82,14 +84,22 @@
 </head>
 <body>
     <div class="container">
-        <h1>График работы на месяц</h1>
+        <h1>Хотелось бы работать так</h1>
 
         <div class="form">
-            <h2>Ваши пожелания на месяц</h2>
-            <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный).</p>
+            <h2 id="month_title">Пожелания на месяц</h2>
+            <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный). Как будет и на том спасибо :)</p>
             <input type="text" id="emp_name" placeholder="Ваше имя" />
 
-            <div class="week-header" id="week_header"></div>
+            <div class="week-header" id="week_header">
+                <div class="day-header">Пн</div>
+                <div class="day-header">Вт</div>
+                <div class="day-header">Ср</div>
+                <div class="day-header">Чт</div>
+                <div class="day-header">Пт</div>
+                <div class="day-header">Сб</div>
+                <div class="day-header">Вс</div>
+            </div>
             <div class="month-grid" id="month_grid"></div>
 
             <button onclick="savePreferences()">Сохранить пожелания</button>
@@ -103,7 +113,6 @@
         </div>
     </div>
 
-    <!-- Полупрозрачное окно -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3>Выберите статус</h3>
@@ -113,52 +122,45 @@
     </div>
 
     <script>
-        // Объявляем переменную prefs
         let prefs = {};
-        let currentCell = null; // Текущая ячейка, на которую нажали
+        let currentCell = null;
 
-        // Дни недели
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
-        // Получаем даты следующего месяца (ближайшего будущего)
-        function getNextMonthDates() {
-            const today = new Date();
-            const nextMonth = new Date(today);
-            nextMonth.setMonth(today.getMonth() + 1);
-            nextMonth.setDate(1);
+        // Берём текущий месяц 2026 года (0–11)
+        const year = 2026;
+        const month = new Date().getMonth(); // 0–11
 
-            const year = nextMonth.getFullYear();
-            const month = nextMonth.getMonth();
-
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
+        function getMonthDates(year, month) {
+            const first = new Date(year, month, 1);
+            const last = new Date(year, month + 1, 0);
 
             const dates = [];
-            for (let i = 1; i <= lastDay.getDate(); i++) {
+            for (let i = 1; i <= last.getDate(); i++) {
                 const date = new Date(year, month, i);
                 const day = date.getDate().toString().padStart(2, '0');
                 const monthStr = (date.getMonth() + 1).toString().padStart(2, '0');
+                const weekDay = weekDays[date.getDay() === 0 ? 6 : date.getDay() - 1];
                 dates.push({
                     day,
                     month: monthStr,
+                    weekDay,
                     dateObj: date
                 });
             }
             return dates;
         }
 
-        const monthDates = getNextMonthDates();
-        const monthName = new Date(monthDates[0].dateObj).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+        const monthDates = getMonthDates(year, month);
+        const monthName = new Date(year, month, 1).toLocaleDateString('ru-RU', { month: 'long' });
 
-        // При загрузке страницы
         window.onload = () => {
-            document.getElementById("week_header").innerHTML = weekDays.map(day => `
-                <div class="day-header">${day}</div>
-            `).join('');
+            document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
 
             generateMonthGrid();
 
-            const savedPrefs = localStorage.getItem("schedule_prefs");
+            const key = `schedule_prefs_${month}`;
+            const savedPrefs = localStorage.getItem(key);
             if (savedPrefs) {
                 prefs = JSON.parse(savedPrefs);
             }
@@ -171,8 +173,7 @@
             const firstDate = monthDates[0].dateObj;
             const lastDate = monthDates[monthDates.length - 1].dateObj;
 
-            // Дни недели до первого числа
-            const firstDayOfWeek = firstDate.getDay(); // 0 - воскресенье
+            const firstDayOfWeek = firstDate.getDay();
             const offset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
             for (let i = 0; i < offset; i++) {
@@ -182,28 +183,24 @@
                 grid.appendChild(cell);
             }
 
-            // Дни месяца
             monthDates.forEach((item, index) => {
                 const cell = document.createElement("div");
                 cell.className = "day-cell empty";
                 cell.dataset.date = item.day;
                 cell.dataset.month = item.month;
                 cell.dataset.index = index;
-                cell.dataset.state = "empty"; // empty / work / off
-                cell.innerHTML = `<strong>${item.day}</strong>`;
+                cell.dataset.state = "empty";
+                cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}`;
 
-                // Добавляем обработчик клика
                 cell.onclick = () => {
-                    // Если уже выбрано, сбрасываем выбор
                     if (cell.dataset.state !== "empty") {
                         cell.dataset.state = "empty";
                         cell.classList.remove("work", "off");
                         cell.classList.add("empty");
-                        cell.innerHTML = `<strong>${item.day}</strong>`;
+                        cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}`;
                         return;
                     }
 
-                    // Открываем модальное окно
                     currentCell = cell;
                     document.getElementById("modal").style.display = "flex";
                 };
@@ -211,8 +208,7 @@
                 grid.appendChild(cell);
             });
 
-            // Дни недели после последнего числа
-            const lastDayOfWeek = lastDate.getDay(); // 0 - воскресенье
+            const lastDayOfWeek = lastDate.getDay();
             const offsetEnd = lastDayOfWeek === 0 ? 0 : 7 - lastDayOfWeek;
 
             for (let i = 0; i < offsetEnd; i++) {
@@ -234,7 +230,7 @@
             currentCell.dataset.state = "work";
             currentCell.classList.remove("off", "empty");
             currentCell.classList.add("work");
-            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong><br>10-20`;
+            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong><br>${monthDates[dayIndex].weekDay}<br>10-20`;
 
             currentCell = null;
         }
@@ -250,7 +246,7 @@
             currentCell.dataset.state = "off";
             currentCell.classList.remove("work", "empty");
             currentCell.classList.add("off");
-            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong><br><strong>В</strong>`;
+            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong><br>${monthDates[dayIndex].weekDay}<br><strong>В</strong>`;
 
             currentCell = null;
         }
@@ -272,7 +268,7 @@
                 if (index !== undefined && cell.classList.contains("work")) {
                     const item = monthDates[index];
                     selectedDays.push(index);
-                    workDays.push(`${item.day}.${item.month}`);
+                    workDays.push(`${item.day}.${item.month} (${item.weekDay})`);
                 }
             });
 
@@ -282,13 +278,14 @@
                 workDays: workDays
             };
 
-            localStorage.setItem("schedule_prefs", JSON.stringify(prefs));
-            alert("Пожелания на месяц сохранены!");
+            const key = `schedule_prefs_${month}`;
+            localStorage.setItem(key, JSON.stringify(prefs));
+            alert(`Пожелания на ${monthName} ${year} сохранены!`);
         }
 
         function showManagerView() {
             const managerView = document.getElementById("manager_view");
-            managerView.innerHTML = `<h3>Пожелания на ${monthName}</h3>`;
+            managerView.innerHTML = `<h3>Пожелания на ${monthName} ${year}</h3>`;
 
             if (Object.keys(prefs).length === 0) {
                 managerView.innerHTML += "<p>Пока нет пожеланий.</p>";
@@ -298,20 +295,18 @@
             Object.keys(prefs).forEach(empName => {
                 const emp = prefs[empName];
                 const div = document.createElement("div");
-                div.innerHTML = `
-                    <strong>${emp.name}</strong>: 
-                    ${emp.workDays.join(", ")}
-                `;
+                div.innerHTML = `<strong>${emp.name}</strong>: ${emp.workDays.join(", ")}`;
                 managerView.appendChild(div);
             });
         }
 
         function clearAllPreferences() {
+            const key = `schedule_prefs_${month}`;
             if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
-                localStorage.removeItem("schedule_prefs");
+                localStorage.removeItem(key);
                 prefs = {};
                 document.getElementById("manager_view").innerHTML = "<p>Все пожелания очищены.</p>";
-                generateMonthGrid(); // сброс цветов
+                generateMonthGrid();
             }
         }
     </script>
