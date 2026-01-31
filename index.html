@@ -9,9 +9,6 @@
         .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
         .form h2 { margin-top: 0; }
         input, select, button { margin: 5px 0; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 20px; }
-        .day { border: 1px solid #ccc; padding: 5px; min-height: 80px; }
-        .shift { background: #e0f7fa; border: 1px solid #00bcd4; margin: 2px 0; padding: 2px 4px; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -19,9 +16,9 @@
         <h1>График работы</h1>
 
         <div class="form">
-            <h2>Пожелания сотрудника</h2>
+            <h2>Ваши пожелания по графику</h2>
+            <p>Отметьте дни, когда вы готовы работать в феврале 2026.</p>
             <input type="text" id="emp_name" placeholder="Ваше имя" />
-            <input type="text" id="emp_position" placeholder="Должность" />
             <select id="month">
                 <option value="2026-02">Февраль 2026</option>
             </select>
@@ -30,8 +27,9 @@
         </div>
 
         <div class="form">
-            <h2>Менеджер: финальный график</h2>
-            <button onclick="showManagerView()">Показать график</button>
+            <h2>Просмотр пожеланий (менеджер)</h2>
+            <button onclick="showManagerView()">Показать все пожелания</button>
+            <button onclick="clearAllPreferences()">Очистить все пожелания</button>
             <div id="manager_view"></div>
         </div>
     </div>
@@ -111,6 +109,14 @@
                 `;
                 managerView.appendChild(div);
             });
+        }
+
+        function clearAllPreferences() {
+            if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
+                localStorage.removeItem("schedule_prefs");
+                prefs = {};
+                document.getElementById("manager_view").innerHTML = "<p>Все пожелания очищены.</p>";
+            }
         }
     </script>
 </body>
