@@ -31,22 +31,37 @@
         .day-cell.off  { background-color: #ef9a9a; border-color: #f44336; }
         .day-cell.empty { background-color: #f5f5f5; border-color: #ccc; }
 
-        /* Кнопки выбора */
-        .choice-buttons {
-            margin-top: 5px;
+        /* Полупрозрачное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
         }
-        .choice-btn {
+        .modal-content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .modal-btn {
             display: block;
-            margin: 2px 0;
-            padding: 5px 8px;
-            border: 1px solid #999;
-            border-radius: 3px;
-            font-size: 0.9em;
+            margin: 10px 0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
-        .choice-btn:hover {
-            background-color: #eee;
-        }
+        .modal-btn.work { background-color: #a5d6a7; color: #000; }
+        .modal-btn.off  { background-color: #ef9a9a; color: #000; }
 
         input, button { margin: 5px 0; }
     </style>
@@ -73,9 +88,19 @@
         </div>
     </div>
 
+    <!-- Полупрозрачное окно -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Выберите статус</h3>
+            <button class="modal-btn work" onclick="setWorkFromModal()">Рабочий</button>
+            <button class="modal-btn off"  onclick="setOffFromModal()">Выходной</button>
+        </div>
+    </div>
+
     <script>
         // Объявляем переменную prefs
         let prefs = {};
+        let currentCell = null; // Текущая ячейка, на которую нажали
 
         // Дни недели
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -112,46 +137,45 @@
                         return;
                     }
 
-                    // Показываем кнопки выбора
-                    cell.innerHTML = `
-                        <strong>${weekDays[d]}</strong>
-                        <div class="choice-buttons">
-                            <div class="choice-btn" onclick="setWork('${d}', event)">Рабочий</div>
-                            <div class="choice-btn" onclick="setOff('${d}', event)">Выходной</div>
-                        </div>
-                    `;
+                    // Открываем модальное окно
+                    currentCell = cell;
+                    document.getElementById("modal").style.display = "flex";
                 };
 
                 week.appendChild(cell);
             }
         }
 
-        function setWork(dayIndex, event) {
-            event.stopPropagation(); // Останавливаем всплытие, чтобы не сработал клик по ячейке
+        function setWorkFromModal() {
+            const modal = document.getElementById("modal");
+            modal.style.display = "none";
 
-            const week = document.getElementById("week");
-            const cell = week.querySelector(`[data-day="${dayIndex}"]`);
+            if (!currentCell) return;
 
-            if (!cell) return;
+            const dayIndex = currentCell.dataset.day;
 
-            cell.dataset.state = "work";
-            cell.classList.remove("off", "empty");
-            cell.classList.add("work");
-            cell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br>10-20`;
+            currentCell.dataset.state = "work";
+            currentCell.classList.remove("off", "empty");
+            currentCell.classList.add("work");
+            currentCell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br>10-20`;
+
+            currentCell = null;
         }
 
-        function setOff(dayIndex, event) {
-            event.stopPropagation(); // Останавливаем всплытие
+        function setOffFromModal() {
+            const modal = document.getElementById("modal");
+            modal.style.display = "none";
 
-            const week = document.getElementById("week");
-            const cell = week.querySelector(`[data-day="${dayIndex}"]`);
+            if (!currentCell) return;
 
-            if (!cell) return;
+            const dayIndex = currentCell.dataset.day;
 
-            cell.dataset.state = "off";
-            cell.classList.remove("work", "empty");
-            cell.classList.add("off");
-            cell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br><strong>В</strong>`;
+            currentCell.dataset.state = "off";
+            currentCell.classList.remove("work", "empty");
+            currentCell.classList.add("off");
+            currentCell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br><strong>В</strong>`;
+
+            currentCell = null;
         }
 
         function savePreferences() {
