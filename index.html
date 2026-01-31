@@ -6,9 +6,26 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
-        .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
-        .form h2 { margin-top: 0; }
-
+        .login-form {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-form input {
+            display: block;
+            margin: 5px 0;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .login-form button {
+            margin: 10px 0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         .month-grid {
             display: flex;
             flex-wrap: wrap;
@@ -26,10 +43,10 @@
             font-size: 14px;
             background-color: #f5f5f5;
             position: relative;
-            background-image: url(https://i.imgur.com/TlO6Xsf.png); 
+            background-image: url("https://i.imgur.com/XXXXX.png");
             background-repeat: no-repeat;
             background-position: center;
-            background-size: 85%; 
+            background-size: 85%;
             opacity: 0.7;
         }
         .day-cell.work {
@@ -48,7 +65,6 @@
             opacity: 0.5;
             cursor: default;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -79,29 +95,30 @@
         }
         .modal-btn.work { background-color: #81c784; color: #000; }
         .modal-btn.off  { background-color: #e57373; color: #000; }
-
-        input, button { margin: 5px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Хотелось бы работать так</h1>
 
-        <div class="form">
-            <h2 id="month_title">Пожелания на месяц</h2>
-            <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный). Как будет и на том спасибо :)</p>
-            <input type="text" id="emp_name" placeholder="Ваше имя" />
-
-            <div class="month-grid" id="month_grid"></div>
-
-            <button onclick="savePreferences()">Сохранить пожелания</button>
+        <div id="login_form" class="login-form">
+            <h2>Вход сотрудника</h2>
+            <p>Введите номер телефона и пароль.</p>
+            <input type="text" id="login" placeholder="Номер телефона (логин)" />
+            <input type="password" id="password" placeholder="Пароль" />
+            <button onclick="login()">Войти</button>
         </div>
 
-        <div class="form">
-            <h2>Просмотр пожеланий (менеджер)</h2>
-            <button onclick="showManagerView()">Показать все пожелания</button>
-            <button onclick="clearAllPreferences()">Очистить все пожелания (удалит все данные)</button>
-            <div id="manager_view"></div>
+        <div id="calendar_form" style="display: none;">
+            <div class="form">
+                <h2 id="month_title">Пожелания на месяц</h2>
+                <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный). Как будет и на том спасибо :)</p>
+                <input type="text" id="emp_name" placeholder="Ваше имя" readonly />
+
+                <div class="month-grid" id="month_grid"></div>
+
+                <button onclick="savePreferences()">Сохранить пожелания</button>
+            </div>
         </div>
     </div>
 
@@ -116,6 +133,8 @@
     <script>
         let prefs = {};
         let currentCell = null;
+        let currentLogin = null;
+        let users = {};
 
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
@@ -146,17 +165,48 @@
         const monthDates = getMonthDates(year, month);
         const monthName = new Date(year, month, 1).toLocaleDateString('ru-RU', { month: 'long' });
 
-        window.onload = () => {
+        // Загружаем базу пользователей из users.json
+        async function loadUsers() {
+            try {
+                const response = await fetch("users.json");
+                users = await response.json();
+            } catch (error) {
+                console.error("Ошибка загрузки users.json:", error);
+                alert("Ошибка загрузки базы сотрудников");
+            }
+        }
+
+        function login() {
+            const loginInput = document.getElementById("login").value.trim();
+            const passwordInput = document.getElementById("password").value.trim();
+
+            if (!loginInput || !passwordInput) {
+                alert("Введите номер телефона и пароль");
+                return;
+            }
+
+            const user = users[loginInput];
+            if (!user || user.password !== passwordInput) {
+                alert("Неверный логин или пароль");
+                return;
+            }
+
+            currentLogin = loginInput;
+
+            document.getElementById("login_form").style.display = "none";
+            document.getElementById("calendar_form").style.display = "block";
+
             document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
+            document.getElementById("emp_name").value = user.name;
 
-            generateMonthGrid();
-
-            const key = `schedule_prefs_${month}`;
+            const key = `schedule_prefs_${month}_${currentLogin}`;
             const savedPrefs = localStorage.getItem(key);
             if (savedPrefs) {
                 prefs = JSON.parse(savedPrefs);
             }
-        };
+
+            generateMonthGrid();
+        }
 
         function generateMonthGrid() {
             const grid = document.getElementById("month_grid");
@@ -183,6 +233,13 @@
                 cell.dataset.index = index;
                 cell.dataset.state = "empty";
                 cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}`;
+
+                if (prefs.days && prefs.days.includes(index)) {
+                    cell.dataset.state = "work";
+                    cell.classList.remove("empty");
+                    cell.classList.add("work");
+                    cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}<br>10-20`;
+                }
 
                 cell.onclick = () => {
                     if (cell.dataset.state !== "empty") {
@@ -244,13 +301,6 @@
         }
 
         function savePreferences() {
-            const name = document.getElementById("emp_name").value.trim();
-
-            if (!name) {
-                alert("Введите своё имя");
-                return;
-            }
-
             const grid = document.getElementById("month_grid");
             const selectedDays = [];
             const workDays = [];
@@ -264,43 +314,21 @@
                 }
             });
 
-            prefs[name] = {
-                name,
+            prefs = {
+                name: document.getElementById("emp_name").value,
                 days: selectedDays,
                 workDays: workDays
             };
 
-            const key = `schedule_prefs_${month}`;
+            const key = `schedule_prefs_${month}_${currentLogin}`;
             localStorage.setItem(key, JSON.stringify(prefs));
             alert(`Пожелания на ${monthName} ${year} сохранены!`);
         }
 
-        function showManagerView() {
-            const managerView = document.getElementById("manager_view");
-            managerView.innerHTML = `<h3>Пожелания на ${monthName} ${year}</h3>`;
-
-            if (Object.keys(prefs).length === 0) {
-                managerView.innerHTML += "<p>Пока нет пожеланий.</p>";
-                return;
-            }
-
-            Object.keys(prefs).forEach(empName => {
-                const emp = prefs[empName];
-                const div = document.createElement("div");
-                div.innerHTML = `<strong>${emp.name}</strong>: ${emp.workDays.join(", ")}`;
-                managerView.appendChild(div);
-            });
-        }
-
-        function clearAllPreferences() {
-            const key = `schedule_prefs_${month}`;
-            if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
-                localStorage.removeItem(key);
-                prefs = {};
-                document.getElementById("manager_view").innerHTML = "<p>Все пожелания очищены.</p>";
-                generateMonthGrid();
-            }
-        }
+        // Загружаем базу пользователей при загрузке страницы
+        window.onload = () => {
+            loadUsers();
+        };
     </script>
 </body>
 </html>
