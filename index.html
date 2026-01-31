@@ -28,6 +28,23 @@
         .day-cell.off  { background-color: #ef9a9a; border-color: #f44336; }
         .day-cell.empty { background-color: #f5f5f5; border-color: #ccc; }
 
+        /* Кнопки выбора */
+        .choice-buttons {
+            margin-top: 5px;
+        }
+        .choice-btn {
+            display: block;
+            margin: 2px 0;
+            padding: 5px 10px;
+            border: 1px solid #999;
+            border-radius: 3px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .choice-btn:hover {
+            background-color: #eee;
+        }
+
         input, button { margin: 5px 0; }
     </style>
 </head>
@@ -36,15 +53,39 @@
         <h1>График работы на неделю</h1>
 
         <div class="form">
-            <h2>Тест: нажмите на ячейки</h2>
-            <p>Если всё работает, ячейки должны менять цвет и текст при клике.</p>
+            <h2>Ваши пожелания на неделю</h2>
+            <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный).</p>
+            <input type="text" id="emp_name" placeholder="Ваше имя" />
 
             <div class="week" id="week"></div>
+
+            <button onclick="savePreferences()">Сохранить пожелания</button>
+        </div>
+
+        <div class="form">
+            <h2>Просмотр пожеланий (менеджер)</h2>
+            <button onclick="showManagerView()">Показать все пожелания</button>
+            <button onclick="clearAllPreferences()">Очистить все пожелания (удалит все данные)</button>
+            <div id="manager_view"></div>
         </div>
     </div>
 
     <script>
+        // Объявляем переменную prefs
+        let prefs = {};
+
+        // Дни недели
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+        // При загрузке страницы
+        window.onload = () => {
+            generateWeek();
+
+            const savedPrefs = localStorage.getItem("schedule_prefs");
+            if (savedPrefs) {
+                prefs = JSON.parse(savedPrefs);
+            }
+        };
 
         function generateWeek() {
             const week = document.getElementById("week");
@@ -54,36 +95,116 @@
                 const cell = document.createElement("div");
                 cell.className = "day-cell empty";
                 cell.dataset.day = d;
-                cell.dataset.state = "empty";
+                cell.dataset.state = "empty"; // empty / work / off
                 cell.innerHTML = `<strong>${weekDays[d]}</strong>`;
 
+                // Добавляем обработчик клика
                 cell.onclick = () => {
-                    if (cell.dataset.state === "empty") {
-                        // Становится рабочим
-                        cell.dataset.state = "work";
-                        cell.classList.remove("off", "empty");
-                        cell.classList.add("work");
-                        cell.innerHTML = `<strong>${weekDays[d]}</strong><br>10-20`;
-                    } else if (cell.dataset.state === "work") {
-                        // Становится выходным
-                        cell.dataset.state = "off";
-                        cell.classList.remove("work", "empty");
-                        cell.classList.add("off");
-                        cell.innerHTML = `<strong>${weekDays[d]}</strong><br><strong>В</strong>`;
-                    } else {
-                        // Сбрасываем
+                    // Если уже выбрано, сбрасываем выбор
+                    if (cell.dataset.state !== "empty") {
                         cell.dataset.state = "empty";
                         cell.classList.remove("work", "off");
                         cell.classList.add("empty");
                         cell.innerHTML = `<strong>${weekDays[d]}</strong>`;
+                        return;
                     }
+
+                    // Показываем кнопки выбора
+                    cell.innerHTML = `
+                        <strong>${weekDays[d]}</strong>
+                        <div class="choice-buttons">
+                            <div class="choice-btn" onclick="setWork('${d}')">Рабочий</div>
+                            <div class="choice-btn" onclick="setOff('${d}')">Выходной</div>
+                        </div>
+                    `;
                 };
 
                 week.appendChild(cell);
             }
         }
 
-        window.onload = generateWeek;
+        function setWork(dayIndex) {
+            const week = document.getElementById("week");
+            const cell = week.querySelector(`[data-day="${dayIndex}"]`);
+
+            if (!cell) return;
+
+            cell.dataset.state = "work";
+            cell.classList.remove("off", "empty");
+            cell.classList.add("work");
+            cell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br>10-20`;
+        }
+
+        function setOff(dayIndex) {
+            const week = document.getElementById("week");
+            const cell = week.querySelector(`[data-day="${dayIndex}"]`);
+
+            if (!cell) return;
+
+            cell.dataset.state = "off";
+            cell.classList.remove("work", "empty");
+            cell.classList.add("off");
+            cell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br><strong>В</strong>`;
+        }
+
+        function savePreferences() {
+            const name = document.getElementById("emp_name").value.trim();
+
+            if (!name) {
+                alert("Введите своё имя");
+                return;
+            }
+
+            const week = document.getElementById("week");
+            const selectedDays = [];
+            const workDays = [];
+
+            week.querySelectorAll(".day-cell").forEach(cell => {
+                const d = cell.dataset.day;
+                if (cell.classList.contains("work")) {
+                    selectedDays.push(d);
+                    workDays.push(weekDays[d]);
+                }
+            });
+
+            prefs[name] = {
+                name,
+                days: selectedDays,
+                workDays: workDays
+            };
+
+            localStorage.setItem("schedule_prefs", JSON.stringify(prefs));
+            alert("Пожелания на неделю сохранены!");
+        }
+
+        function showManagerView() {
+            const managerView = document.getElementById("manager_view");
+            managerView.innerHTML = "<h3>Пожелания на неделю</h3>";
+
+            if (Object.keys(prefs).length === 0) {
+                managerView.innerHTML += "<p>Пока нет пожеланий.</p>";
+                return;
+            }
+
+            Object.keys(prefs).forEach(empName => {
+                const emp = prefs[empName];
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    <strong>${emp.name}</strong>: 
+                    ${emp.workDays.join(", ")}
+                `;
+                managerView.appendChild(div);
+            });
+        }
+
+        function clearAllPreferences() {
+            if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
+                localStorage.removeItem("schedule_prefs");
+                prefs = {};
+                document.getElementById("manager_view").innerHTML = "<p>Все пожелания очищены.</p>";
+                generateWeek(); // сброс цветов
+            }
+        }
     </script>
 </body>
 </html>
