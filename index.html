@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <title>График работы</title>
+    <title>График работы на неделю</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -13,15 +13,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>График работы</h1>
+        <h1>График работы на неделю</h1>
 
         <div class="form">
-            <h2>Ваши пожелания по графику</h2>
-            <p>Отметьте дни, когда вы готовы работать в феврале 2026.</p>
+            <h2>Ваши пожелания на неделю</h2>
+            <p>Отметьте дни, когда вы готовы работать на следующей неделе.</p>
             <input type="text" id="emp_name" placeholder="Ваше имя" />
-            <select id="month">
-                <option value="2026-02">Февраль 2026</option>
-            </select>
             <div id="days"></div>
             <button onclick="savePreferences()">Сохранить пожелания</button>
         </div>
@@ -29,7 +26,7 @@
         <div class="form">
             <h2>Просмотр пожеланий (менеджер)</h2>
             <button onclick="showManagerView()">Показать все пожелания</button>
-            <button onclick="clearAllPreferences()">Очистить все пожелания</button>
+            <button onclick="clearAllPreferences()">Очистить все пожелания (удалит все данные)</button>
             <div id="manager_view"></div>
         </div>
     </div>
@@ -51,12 +48,15 @@
         function generateDays() {
             const days = document.getElementById("days");
             days.innerHTML = "";
-            for (let d = 1; d <= 28; d++) {
+
+            const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+            for (let d = 0; d < 7; d++) {
                 const day = document.createElement("div");
                 day.innerHTML = `
                     <label>
                         <input type="checkbox" data-day="${d}">
-                        ${d}.02
+                        ${weekDays[d]}
                     </label>
                 `;
                 days.appendChild(day);
@@ -65,8 +65,6 @@
 
         function savePreferences() {
             const name = document.getElementById("emp_name").value.trim();
-            const position = document.getElementById("emp_position").value.trim();
-            const month = document.getElementById("month").value;
 
             if (!name) {
                 alert("Введите своё имя");
@@ -80,32 +78,33 @@
 
             prefs[name] = {
                 name,
-                position,
-                month,
                 days: selectedDays
             };
 
             // Сохраняем prefs в localStorage
             localStorage.setItem("schedule_prefs", JSON.stringify(prefs));
 
-            alert("Пожелания сохранены!");
+            alert("Пожелания на неделю сохранены!");
         }
 
         function showManagerView() {
             const managerView = document.getElementById("manager_view");
-            managerView.innerHTML = "<h3>Пожелания сотрудников</h3>";
+            managerView.innerHTML = "<h3>Пожелания на неделю</h3>";
 
             if (Object.keys(prefs).length === 0) {
                 managerView.innerHTML += "<p>Пока нет пожеланий.</p>";
                 return;
             }
 
+            const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
             Object.keys(prefs).forEach(empName => {
                 const emp = prefs[empName];
                 const div = document.createElement("div");
+                const dayNames = emp.days.map(d => weekDays[d]);
                 div.innerHTML = `
-                    <strong>${emp.name} (${emp.position})</strong>: 
-                    ${emp.days.join(", ")} дней в ${emp.month}
+                    <strong>${emp.name}</strong>: 
+                    ${dayNames.join(", ")}
                 `;
                 managerView.appendChild(div);
             });
