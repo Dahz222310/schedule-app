@@ -16,7 +16,7 @@
         }
         .day-cell {
             flex: 1 1 calc(14.28% - 10px);
-            min-height: 70px;
+            min-height: 100px;
             padding: 8px 4px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -25,10 +25,23 @@
             user-select: none;
             font-size: 14px;
             background-color: #f5f5f5;
+            position: relative;
+            background-image: url(https://imgur.com/a/waQFChR);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 60%;
+            opacity: 0.7;
         }
-        .day-cell.work { background-color: #81c784; border-color: #4caf50; } /* более насыщенный зелёный */
-        .day-cell.off  { background-color: #e57373; border-color: #f44336; } /* более насыщенный красный */
-        .day-cell.empty { background-color: #f5f5f5; border-color: #ccc; }
+        .day-cell.work {
+            background-color: #81c784;
+            border-color: #4caf50;
+            opacity: 0.8;
+        }
+        .day-cell.off {
+            background-color: #e57373;
+            border-color: #f44336;
+            opacity: 0.8;
+        }
         .day-cell.empty.inactive {
             background-color: #eee;
             border-color: #ddd;
