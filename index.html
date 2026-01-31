@@ -105,6 +105,27 @@
         // Дни недели
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
+        // Получаем даты следующей недели
+        function getNextWeekDates() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 - воскресенье, 1 - понедельник и т.д.
+            const daysToAdd = 1; // Следующий день
+            const nextDay = new Date(today);
+            nextDay.setDate(today.getDate() + daysToAdd);
+
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(nextDay);
+                date.setDate(nextDay.getDate() + i);
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                dates.push(`${day}.${month}`);
+            }
+            return dates;
+        }
+
+        const nextWeekDates = getNextWeekDates();
+
         // При загрузке страницы
         window.onload = () => {
             generateWeek();
@@ -124,7 +145,7 @@
                 cell.className = "day-cell empty";
                 cell.dataset.day = d;
                 cell.dataset.state = "empty"; // empty / work / off
-                cell.innerHTML = `<strong>${weekDays[d]}</strong>`;
+                cell.innerHTML = `<strong>${weekDays[d]} ${nextWeekDates[d]}</strong>`;
 
                 // Добавляем обработчик клика
                 cell.onclick = () => {
@@ -133,7 +154,7 @@
                         cell.dataset.state = "empty";
                         cell.classList.remove("work", "off");
                         cell.classList.add("empty");
-                        cell.innerHTML = `<strong>${weekDays[d]}</strong>`;
+                        cell.innerHTML = `<strong>${weekDays[d]} ${nextWeekDates[d]}</strong>`;
                         return;
                     }
 
@@ -157,7 +178,7 @@
             currentCell.dataset.state = "work";
             currentCell.classList.remove("off", "empty");
             currentCell.classList.add("work");
-            currentCell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br>10-20`;
+            currentCell.innerHTML = `<strong>${weekDays[dayIndex]} ${nextWeekDates[dayIndex]}</strong><br>10-20`;
 
             currentCell = null;
         }
@@ -173,7 +194,7 @@
             currentCell.dataset.state = "off";
             currentCell.classList.remove("work", "empty");
             currentCell.classList.add("off");
-            currentCell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br><strong>В</strong>`;
+            currentCell.innerHTML = `<strong>${weekDays[dayIndex]} ${nextWeekDates[dayIndex]}</strong><br><strong>В</strong>`;
 
             currentCell = null;
         }
@@ -194,7 +215,7 @@
                 const d = cell.dataset.day;
                 if (cell.classList.contains("work")) {
                     selectedDays.push(d);
-                    workDays.push(weekDays[d]);
+                    workDays.push(`${weekDays[d]} ${nextWeekDates[d]}`);
                 }
             });
 
