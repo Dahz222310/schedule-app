@@ -116,8 +116,8 @@
                     cell.innerHTML = `
                         <strong>${weekDays[d]}</strong>
                         <div class="choice-buttons">
-                            <div class="choice-btn" onclick="setWork('${d}')">Рабочий</div>
-                            <div class="choice-btn" onclick="setOff('${d}')">Выходной</div>
+                            <div class="choice-btn" onclick="setWork('${d}', event)">Рабочий</div>
+                            <div class="choice-btn" onclick="setOff('${d}', event)">Выходной</div>
                         </div>
                     `;
                 };
@@ -126,7 +126,9 @@
             }
         }
 
-        function setWork(dayIndex) {
+        function setWork(dayIndex, event) {
+            event.stopPropagation(); // Останавливаем всплытие, чтобы не сработал клик по ячейке
+
             const week = document.getElementById("week");
             const cell = week.querySelector(`[data-day="${dayIndex}"]`);
 
@@ -138,7 +140,9 @@
             cell.innerHTML = `<strong>${weekDays[dayIndex]}</strong><br>10-20`;
         }
 
-        function setOff(dayIndex) {
+        function setOff(dayIndex, event) {
+            event.stopPropagation(); // Останавливаем всплытие
+
             const week = document.getElementById("week");
             const cell = week.querySelector(`[data-day="${dayIndex}"]`);
 
