@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Просмотр пожеланий (менеджер)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .form h2 { margin-top: 0; }
+        input, button { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Просмотр пожеланий (менеджер)</h1>
+
+        <div class="form">
+            <button onclick="showManagerView()">Показать все пожелания</button>
+            <button onclick="clearAllPreferences()">Очистить все пожелания</button>
+            <div id="manager_view"></div>
+        </div>
+    </div>
+
+    <script>
+        function showManagerView() {
+            const managerView = document.getElementById("manager_view");
+            managerView.innerHTML = "<h3>Пожелания на февраль 2026</h3>";
+
+            const month = 1; // февраль
+            const keys = Object.keys(localStorage);
+
+            let found = false;
+
+            keys.forEach(key => {
+                if (key.startsWith(`schedule_prefs_${month}_`)) {
+                    const savedPrefs = localStorage.getItem(key);
+                    const prefs = JSON.parse(savedPrefs);
+
+                    const div = document.createElement("div");
+                    div.innerHTML = `<strong>${prefs.name}</strong>: ${prefs.workDays.join(", ")}`;
+                    managerView.appendChild(div);
+
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                managerView.innerHTML += "<p>Пока нет пожеланий.</p>";
+            }
+        }
+
+        function clearAllPreferences() {
+            if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
+                const month = 1; // февраль
+                const keys = Object.keys(localStorage);
+
+                keys.forEach(key => {
+                    if (key.startsWith(`schedule_prefs_${month}_`)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+
+                document.getElementById("manager_view").innerHTML = "<p>Все пожелания очищены.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
