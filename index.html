@@ -54,7 +54,7 @@
 
         <div class="form">
             <h2>Ваши пожелания на неделю</h2>
-            <p>Нажмите на день, чтобы выбрать: работаю или выходной.</p>
+            <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный).</p>
             <input type="text" id="emp_name" placeholder="Ваше имя" />
 
             <div class="week" id="week"></div>
@@ -113,7 +113,7 @@
                     cell.innerHTML = `
                         <strong>${weekDays[d]}</strong>
                         <div class="choice-buttons">
-                            <div class="choice-btn" onclick="setWork('${d}')">Работаю</div>
+                            <div class="choice-btn" onclick="setWork('${d}')">Рабочий</div>
                             <div class="choice-btn" onclick="setOff('${d}')">Выходной</div>
                         </div>
                     `;
