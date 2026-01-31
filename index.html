@@ -80,7 +80,8 @@
                 cell.dataset.day = d;
                 cell.textContent = weekDays[d];
 
-                cell.addEventListener("click", () => {
+                // Добавляем обработчик клика
+                cell.onclick = () => {
                     if (cell.classList.contains("work")) {
                         cell.classList.remove("work");
                         cell.classList.add("off");
@@ -90,7 +91,7 @@
                     } else {
                         cell.classList.add("work");
                     }
-                });
+                };
 
                 week.appendChild(cell);
             }
