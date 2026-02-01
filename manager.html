@@ -22,6 +22,11 @@
         th {
             background-color: #f0f0f0;
         }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -30,8 +35,10 @@
 
         <div class="form">
             <h2>Все временные пожелания сотрудников</h2>
-            <button onclick="showAllPreferences()">Показать все пожелания</button>
-            <button onclick="clearAllPreferences()">Очистить все пожелания</button>
+            <div class="button-container">
+                <button onclick="showAllPreferences()">Показать все пожелания</button>
+                <button onclick="clearAllPreferences()">Очистить все пожелания</button>
+            </div>
             <table id="manager_table">
                 <thead>
                     <tr>
@@ -65,7 +72,7 @@
                     nameCell.textContent = prefs.name;
 
                     const daysCell = document.createElement("td");
-                    daysCell.textContent = prefs.workDays.join(", ");
+                    daysCell.textContent = prefs.workDays.length > 0 ? prefs.workDays.join(", ") : "Нет пожеланий";
 
                     row.appendChild(nameCell);
                     row.appendChild(daysCell);
