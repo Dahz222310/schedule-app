@@ -133,7 +133,7 @@
     <script>
         let prefs = {};
         let currentCell = null;
-        let currentLogin = localStorage.getItem("currentLogin"); // читаем сразу
+        let currentLogin = localStorage.getItem("currentLogin"); 
         let users = {};
 
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -245,13 +245,16 @@
                 cell.dataset.month = item.month;
                 cell.dataset.index = index;
                 cell.dataset.state = "empty";
-                cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}`;
+                cell.innerHTML = `<strong>${item.day}</strong>
+${item.weekDay}`;
 
                 if (prefs.days && prefs.days.includes(index)) {
                     cell.dataset.state = "work";
                     cell.classList.remove("empty");
                     cell.classList.add("work");
-                    cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}<br>10-20`;
+                    cell.innerHTML = `<strong>${item.day}</strong>
+${item.weekDay}
+10-20`;
                 }
 
                 cell.onclick = () => {
@@ -259,7 +262,8 @@
                         cell.dataset.state = "empty";
                         cell.classList.remove("work", "off");
                         cell.classList.add("empty");
-                        cell.innerHTML = `<strong>${item.day}</strong><br>${item.weekDay}`;
+                        cell.innerHTML = `<strong>${item.day}</strong>
+${item.weekDay}`;
                         return;
                     }
 
@@ -292,7 +296,9 @@
             currentCell.dataset.state = "work";
             currentCell.classList.remove("off", "empty");
             currentCell.classList.add("work");
-            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong><br>${monthDates[dayIndex].weekDay}<br>10-20`;
+            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong>
+${monthDates[dayIndex].weekDay}
+10-20`;
 
             currentCell = null;
         }
@@ -308,7 +314,9 @@
             currentCell.dataset.state = "off";
             currentCell.classList.remove("work", "empty");
             currentCell.classList.add("off");
-            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong><br>${monthDates[dayIndex].weekDay}<br><strong>В</strong>`;
+            currentCell.innerHTML = `<strong>${monthDates[dayIndex].day}</strong>
+${monthDates[dayIndex].weekDay}
+<strong>В</strong>`;
 
             currentCell = null;
         }
@@ -339,22 +347,10 @@
         }
 
         // Загружаем базу пользователей и проверяем, кто уже вошёл
-        window.onload = () => {
-            loadUsers();
+        window.onload = async () => {
+            await loadUsers();
 
             if (currentLogin) {
-                // Если это менеджер
-                if (currentLogin === "manager") {
-                    document.getElementById("login_form").style.display = "none";
-                    document.getElementById("calendar_form").style.display = "block";
-                    document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
-                    document.getElementById("emp_name").value = "Менеджер";
-                    prefs = {};
-                    generateMonthGrid();
-                    return;
-                }
-
-                // Если это сотрудник
                 const user = users[currentLogin];
                 if (user) {
                     document.getElementById("login_form").style.display = "none";
@@ -369,6 +365,16 @@
                     }
 
                     generateMonthGrid();
+                } else if (currentLogin === "manager") {
+                    document.getElementById("login_form").style.display = "none";
+                    document.getElementById("calendar_form").style.display = "block";
+                    document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
+                    document.getElementById("emp_name").value = "Менеджер";
+                    prefs = {};
+                    generateMonthGrid();
+                } else {
+                    alert("Пользователь не найден. Пожалуйста, войдите снова.");
+                    localStorage.removeItem("currentLogin");
                 }
             }
         };
