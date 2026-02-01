@@ -133,7 +133,7 @@
     <script>
         let prefs = {};
         let currentCell = null;
-        let currentLogin = null;
+        let currentLogin = localStorage.getItem("currentLogin"); // читаем сразу
         let users = {};
 
         const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -188,7 +188,7 @@
             // Проверка менеджера
             if (loginInput === "manager" && passwordInput === "manager123") {
                 currentLogin = "manager";
-                localStorage.setItem("currentLogin", currentLogin); // сохраняем
+                localStorage.setItem("currentLogin", currentLogin);
                 document.getElementById("login_form").style.display = "none";
                 document.getElementById("calendar_form").style.display = "block";
                 document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
@@ -206,7 +206,7 @@
             }
 
             currentLogin = loginInput;
-            localStorage.setItem("currentLogin", currentLogin); // сохраняем
+            localStorage.setItem("currentLogin", currentLogin);
             document.getElementById("login_form").style.display = "none";
             document.getElementById("calendar_form").style.display = "block";
             document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
@@ -342,12 +342,9 @@
         window.onload = () => {
             loadUsers();
 
-            const savedLogin = localStorage.getItem("currentLogin");
-            if (savedLogin) {
-                currentLogin = savedLogin;
-
+            if (currentLogin) {
                 // Если это менеджер
-                if (savedLogin === "manager") {
+                if (currentLogin === "manager") {
                     document.getElementById("login_form").style.display = "none";
                     document.getElementById("calendar_form").style.display = "block";
                     document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
@@ -358,14 +355,14 @@
                 }
 
                 // Если это сотрудник
-                const user = users[savedLogin];
+                const user = users[currentLogin];
                 if (user) {
                     document.getElementById("login_form").style.display = "none";
                     document.getElementById("calendar_form").style.display = "block";
                     document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
                     document.getElementById("emp_name").value = user.name;
 
-                    const key = `schedule_prefs_${month}_${savedLogin}`;
+                    const key = `schedule_prefs_${month}_${currentLogin}`;
                     const savedPrefs = localStorage.getItem(key);
                     if (savedPrefs) {
                         prefs = JSON.parse(savedPrefs);
