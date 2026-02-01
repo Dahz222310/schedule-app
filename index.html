@@ -185,6 +185,20 @@
                 return;
             }
 
+            // Проверка менеджера
+            if (loginInput === "manager" && passwordInput === "manager123") {
+                currentLogin = "manager";
+                localStorage.setItem("currentLogin", currentLogin); // сохраняем
+                document.getElementById("login_form").style.display = "none";
+                document.getElementById("calendar_form").style.display = "block";
+                document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
+                document.getElementById("emp_name").value = "Менеджер";
+                prefs = {};
+                generateMonthGrid();
+                return;
+            }
+
+            // Проверка сотрудников
             const user = users[loginInput];
             if (!user || user.password !== passwordInput) {
                 alert("Неверный логин или пароль");
@@ -192,10 +206,9 @@
             }
 
             currentLogin = loginInput;
-
+            localStorage.setItem("currentLogin", currentLogin); // сохраняем
             document.getElementById("login_form").style.display = "none";
             document.getElementById("calendar_form").style.display = "block";
-
             document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
             document.getElementById("emp_name").value = user.name;
 
@@ -325,9 +338,42 @@
             alert(`Пожелания на ${monthName} ${year} сохранены!`);
         }
 
-        // Загружаем базу пользователей при загрузке страницы
+        // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = () => {
             loadUsers();
+
+            const savedLogin = localStorage.getItem("currentLogin");
+            if (savedLogin) {
+                currentLogin = savedLogin;
+
+                // Если это менеджер
+                if (savedLogin === "manager") {
+                    document.getElementById("login_form").style.display = "none";
+                    document.getElementById("calendar_form").style.display = "block";
+                    document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
+                    document.getElementById("emp_name").value = "Менеджер";
+                    prefs = {};
+                    generateMonthGrid();
+                    return;
+                }
+
+                // Если это сотрудник
+                const user = users[savedLogin];
+                if (user) {
+                    document.getElementById("login_form").style.display = "none";
+                    document.getElementById("calendar_form").style.display = "block";
+                    document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
+                    document.getElementById("emp_name").value = user.name;
+
+                    const key = `schedule_prefs_${month}_${savedLogin}`;
+                    const savedPrefs = localStorage.getItem(key);
+                    if (savedPrefs) {
+                        prefs = JSON.parse(savedPrefs);
+                    }
+
+                    generateMonthGrid();
+                }
+            }
         };
     </script>
 </body>
