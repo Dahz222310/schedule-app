@@ -160,7 +160,8 @@
                     <!-- Вкладка "График" -->
                     <div id="tab-schedule" class="tab-pane">
                         <h3>Фактический график</h3>
-                        <p>Здесь будет график, который проставит менеджер.</p>
+                        <p>Дни, которые менеджер проставил вам рабочими (10–20):</p>
+                        <div id="schedule_grid" class="month-grid"></div>
                     </div>
                 </div>
             </div>
@@ -240,6 +241,7 @@
                 document.getElementById("emp_name").value = "Менеджер";
                 prefs = {};
                 generateMonthGrid();
+                renderSchedule();
                 return;
             }
 
@@ -264,6 +266,7 @@
             }
 
             generateMonthGrid();
+            renderSchedule();
         }
 
         function generateMonthGrid() {
@@ -401,16 +404,39 @@ ${monthDates[dayIndex].weekDay}
             });
         }
 
-        // При загрузке страницы показываем вкладку "map"
-        window.addEventListener("load", () => {
-            if (currentLogin) {
-                switchTab("map");
-            }
-        });
+        // Рисуем график (7 ячеек 10–20)
+        function renderSchedule() {
+            const grid = document.getElementById("schedule_grid");
+            grid.innerHTML = "";
+
+            const days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+            days.forEach((day, index) => {
+                const cell = document.createElement("div");
+                cell.className = "day-cell empty";
+                cell.dataset.index = index;
+                cell.innerHTML = `<strong>${day}</strong>`;
+
+                if (prefs.days && prefs.days.includes(index)) {
+                    cell.classList.remove("empty");
+                    cell.classList.add("work");
+                    cell.innerHTML = `<strong>${day}</strong><br>10-20`;
+                }
+
+                grid.appendChild(cell);
+            });
+        }
 
         // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = async () => {
             await loadUsers();
+
+            // Обработчики кликов по вкладкам
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.onclick = () => {
+                    switchTab(btn.dataset.tab);
+                };
+            });
 
             if (currentLogin) {
                 const user = users[currentLogin];
@@ -427,6 +453,7 @@ ${monthDates[dayIndex].weekDay}
                     }
 
                     generateMonthGrid();
+                    renderSchedule();
                 } else if (currentLogin === "manager") {
                     document.getElementById("login_form").style.display = "none";
                     document.getElementById("calendar_form").style.display = "block";
@@ -434,6 +461,7 @@ ${monthDates[dayIndex].weekDay}
                     document.getElementById("emp_name").value = "Менеджер";
                     prefs = {};
                     generateMonthGrid();
+                    renderSchedule();
                 } else {
                     alert("Пользователь не найден. Пожалуйста, войдите снова.");
                     localStorage.removeItem("currentLogin");
