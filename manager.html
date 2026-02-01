@@ -9,6 +9,19 @@
         .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
         .form h2 { margin-top: 0; }
         input, button { margin: 5px 0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -16,20 +29,29 @@
         <h1>Просмотр пожеланий (менеджер)</h1>
 
         <div class="form">
-            <button onclick="showManagerView()">Показать все пожелания</button>
+            <h2>Все временные пожелания сотрудников</h2>
+            <button onclick="showAllPreferences()">Показать все пожелания</button>
             <button onclick="clearAllPreferences()">Очистить все пожелания</button>
-            <div id="manager_view"></div>
+            <table id="manager_table">
+                <thead>
+                    <tr>
+                        <th>Сотрудник</th>
+                        <th>Пожелания (дни)</th>
+                    </tr>
+                </thead>
+                <tbody id="manager_view"></tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        function showManagerView() {
+        const month = 1; // февраль
+
+        function showAllPreferences() {
             const managerView = document.getElementById("manager_view");
-            managerView.innerHTML = "<h3>Пожелания на февраль 2026</h3>";
+            managerView.innerHTML = "";
 
-            const month = 1; // февраль
             const keys = Object.keys(localStorage);
-
             let found = false;
 
             keys.forEach(key => {
@@ -37,22 +59,34 @@
                     const savedPrefs = localStorage.getItem(key);
                     const prefs = JSON.parse(savedPrefs);
 
-                    const div = document.createElement("div");
-                    div.innerHTML = `<strong>${prefs.name}</strong>: ${prefs.workDays.join(", ")}`;
-                    managerView.appendChild(div);
+                    const row = document.createElement("tr");
+
+                    const nameCell = document.createElement("td");
+                    nameCell.textContent = prefs.name;
+
+                    const daysCell = document.createElement("td");
+                    daysCell.textContent = prefs.workDays.join(", ");
+
+                    row.appendChild(nameCell);
+                    row.appendChild(daysCell);
+                    managerView.appendChild(row);
 
                     found = true;
                 }
             });
 
             if (!found) {
-                managerView.innerHTML += "<p>Пока нет пожеланий.</p>";
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.colSpan = 2;
+                cell.textContent = "Пока нет пожеланий.";
+                row.appendChild(cell);
+                managerView.appendChild(row);
             }
         }
 
         function clearAllPreferences() {
             if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
-                const month = 1; // февраль
                 const keys = Object.keys(localStorage);
 
                 keys.forEach(key => {
@@ -61,9 +95,19 @@
                     }
                 });
 
-                document.getElementById("manager_view").innerHTML = "<p>Все пожелания очищены.</p>";
+                document.getElementById("manager_view").innerHTML = "";
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.colSpan = 2;
+                cell.textContent = "Все пожелания очищены.";
+                row.appendChild(cell);
+                document.getElementById("manager_view").appendChild(row);
             }
         }
+
+        window.onload = () => {
+            showAllPreferences();
+        };
     </script>
 </body>
 </html>
