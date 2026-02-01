@@ -95,6 +95,35 @@
         }
         .modal-btn.work { background-color: #81c784; color: #000; }
         .modal-btn.off  { background-color: #e57373; color: #000; }
+
+        /* Вкладки */
+        #tabs {
+            margin: 10px 0;
+            display: flex;
+            gap: 5px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            background-color: #f0f0f0;
+        }
+        .tab-btn.active {
+            background-color: #fff;
+            border-bottom: none;
+            font-weight: bold;
+        }
+        .tab-pane {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .tab-pane.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -115,9 +144,25 @@
                 <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный). Как будет и на том спасибо :)</p>
                 <input type="text" id="emp_name" placeholder="Ваше имя" readonly />
 
-                <div class="month-grid" id="month_grid"></div>
+                <!-- Вкладки -->
+                <div id="tabs">
+                    <button class="tab-btn active" data-tab="map">Карта возможностей</button>
+                    <button class="tab-btn" data-tab="schedule">График</button>
+                </div>
 
-                <button onclick="savePreferences()">Сохранить пожелания</button>
+                <div id="tab-content">
+                    <!-- Вкладка "Карта возможностей" -->
+                    <div id="tab-map" class="tab-pane active">
+                        <div class="month-grid" id="month_grid"></div>
+                        <button onclick="savePreferences()">Сохранить пожелания</button>
+                    </div>
+
+                    <!-- Вкладка "График" -->
+                    <div id="tab-schedule" class="tab-pane">
+                        <h3>Фактический график</h3>
+                        <p>Здесь будет график, который проставит менеджер.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -345,6 +390,23 @@ ${monthDates[dayIndex].weekDay}
             localStorage.setItem(key, JSON.stringify(prefs));
             alert(`Пожелания на ${monthName} ${year} сохранены!`);
         }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.tab === tabName);
+            });
+            document.querySelectorAll(".tab-pane").forEach(pane => {
+                pane.classList.toggle("active", pane.id === "tab-" + tabName);
+            });
+        }
+
+        // При загрузке страницы показываем вкладку "map"
+        window.addEventListener("load", () => {
+            if (currentLogin) {
+                switchTab("map");
+            }
+        });
 
         // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = async () => {
