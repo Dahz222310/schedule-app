@@ -413,20 +413,20 @@ ${monthDates[dayIndex].weekDay}
             window.location.href = "manager.html";
         }
 
-        // Фиксим кнопку "Назад"
-        window.onpopstate = function(event) {
+        // Запрещаем уход с сайта по кнопке "Назад"
+        window.addEventListener("popstate", function(event) {
+            // Если мы уже на экране выбора — ничего не делаем
             if (document.getElementById("dashboard").style.display === "block") {
-                // Если на экране выбора — ничего не делаем
                 return;
             }
+            // Если в разделе — возвращаемся на экран выбора
             if (document.getElementById("map_form").style.display === "block" || document.getElementById("schedule_form").style.display === "block") {
-                // Если в разделе — возвращаемся на экран выбора
                 document.getElementById("map_form").style.display = "none";
                 document.getElementById("schedule_form").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
                 history.pushState(null, null, location.href);
             }
-        };
+        });
 
         // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = async () => {
