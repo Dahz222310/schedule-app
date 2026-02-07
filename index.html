@@ -243,6 +243,9 @@
                 return;
             }
 
+            // Очищаем старый логин
+            localStorage.removeItem("currentLogin");
+
             currentLogin = loginInput;
             localStorage.setItem("currentLogin", currentLogin);
 
