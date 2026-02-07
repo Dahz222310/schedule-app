@@ -236,16 +236,6 @@
                 return;
             }
 
-            // Проверка менеджера
-            if (loginInput === "manager" && passwordInput === "manager123") {
-                currentLogin = "manager";
-                localStorage.setItem("currentLogin", currentLogin);
-                document.getElementById("login_form").style.display = "none";
-                document.getElementById("dashboard").style.display = "block";
-                document.getElementById("admin-box").style.display = "block";
-                return;
-            }
-
             // Проверка сотрудников
             const user = users[loginInput];
             if (!user || user.password !== passwordInput) {
@@ -255,6 +245,14 @@
 
             currentLogin = loginInput;
             localStorage.setItem("currentLogin", currentLogin);
+
+            // Если пользователь — администратор, сразу переходим на страницу менеджера
+            if (user.role === "admin") {
+                window.location.href = "manager.html";
+                return;
+            }
+
+            // Обычный сотрудник — на экран выбора блоков
             document.getElementById("login_form").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
         }
@@ -455,6 +453,12 @@ ${monthDates[dayIndex].weekDay}
             if (currentLogin) {
                 const user = users[currentLogin];
                 if (user) {
+                    // Если администратор уже вошёл — сразу на страницу менеджера
+                    if (user.role === "admin") {
+                        window.location.href = "manager.html";
+                        return;
+                    }
+
                     document.getElementById("login_form").style.display = "none";
                     document.getElementById("dashboard").style.display = "block";
 
@@ -467,16 +471,6 @@ ${monthDates[dayIndex].weekDay}
                         prefs = JSON.parse(savedPrefs);
                     }
 
-                    generateMonthGridMap();
-                    renderSchedule();
-                } else if (currentLogin === "manager") {
-                    document.getElementById("login_form").style.display = "none";
-                    document.getElementById("dashboard").style.display = "block";
-                    document.getElementById("admin-box").style.display = "block";
-
-                    document.getElementById("month_title_map").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
-                    document.getElementById("emp_name_map").value = "Менеджер";
-                    prefs = {};
                     generateMonthGridMap();
                     renderSchedule();
                 } else {
