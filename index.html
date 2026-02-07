@@ -428,7 +428,7 @@ ${monthDates[dayIndex].weekDay}
             }
         });
 
-        // Загружаем базу пользователей и проверяем, кто уже вошёл
+        // При первой загрузке страницы делаем так, чтобы кнопка "Назад" не уводила с сайта
         window.onload = async () => {
             await loadUsers();
 
@@ -464,6 +464,9 @@ ${monthDates[dayIndex].weekDay}
                     localStorage.removeItem("currentLogin");
                 }
             }
+
+            // Добавляем состояние в историю, чтобы кнопка "Назад" не уходила с сайта
+            history.pushState(null, null, location.href);
         };
     </script>
 </body>
