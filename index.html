@@ -227,6 +227,7 @@
                 document.getElementById("login_form").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
                 document.getElementById("admin-box").style.display = "block";
+                history.pushState(null, null, location.href);
                 return;
             }
 
@@ -241,6 +242,7 @@
             localStorage.setItem("currentLogin", currentLogin);
             document.getElementById("login_form").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
+            history.pushState(null, null, location.href);
         }
 
         function generateMonthGridMap() {
@@ -398,6 +400,7 @@ ${monthDates[dayIndex].weekDay}
             document.getElementById("month_title_map").textContent = `Пожелания на ${monthName} ${year}`;
             document.getElementById("emp_name_map").value = users[currentLogin].name;
             generateMonthGridMap();
+            history.pushState(null, null, location.href);
         }
 
         // Переход к разделу "График"
@@ -406,6 +409,7 @@ ${monthDates[dayIndex].weekDay}
             document.getElementById("schedule_form").style.display = "block";
             document.getElementById("month_title_schedule").textContent = `Фактический график — ${monthName} ${year}`;
             renderSchedule();
+            history.pushState(null, null, location.href);
         }
 
         // Переход к админке
@@ -413,22 +417,28 @@ ${monthDates[dayIndex].weekDay}
             window.location.href = "manager.html";
         }
 
-        // Запрещаем уход с сайта по кнопке "Назад"
+        // Обработка кнопки "Назад"
         window.addEventListener("popstate", function(event) {
-            // Если мы уже на экране выбора — ничего не делаем
-            if (document.getElementById("dashboard").style.display === "block") {
-                return;
-            }
-            // Если в разделе — возвращаемся на экран выбора
-            if (document.getElementById("map_form").style.display === "block" || document.getElementById("schedule_form").style.display === "block") {
+            const loginVisible   = document.getElementById("login_form").style.display === "block";
+            const dashboardVisible = document.getElementById("dashboard").style.display === "block";
+            const mapVisible     = document.getElementById("map_form").style.display === "block";
+            const scheduleVisible = document.getElementById("schedule_form").style.display === "block";
+
+            if (mapVisible || scheduleVisible) {
+                // Из разделов возвращаемся на экран выбора блоков
                 document.getElementById("map_form").style.display = "none";
                 document.getElementById("schedule_form").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
                 history.pushState(null, null, location.href);
+            } else if (dashboardVisible) {
+                // Со страницы выбора блоков возвращаемся на страницу входа
+                document.getElementById("dashboard").style.display = "none";
+                document.getElementById("login_form").style.display = "block";
+                history.pushState(null, null, location.href);
             }
         });
 
-        // При первой загрузке страницы делаем так, чтобы кнопка "Назад" не уводила с сайта
+        // При первой загрузке страницы
         window.onload = async () => {
             await loadUsers();
 
@@ -465,7 +475,6 @@ ${monthDates[dayIndex].weekDay}
                 }
             }
 
-            // Добавляем состояние в историю, чтобы кнопка "Назад" не уходила с сайта
             history.pushState(null, null, location.href);
         };
     </script>
