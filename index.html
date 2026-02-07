@@ -124,20 +124,47 @@
         .tab-pane.active {
             display: block;
         }
+
+        /* Экран выбора разделов */
+        .choice-box {
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+        }
+        .choice-box:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Хотелось бы работать так</h1>
 
+        <!-- Форма входа -->
         <div id="login_form" class="login-form">
-            <h2>Вход сотрудника</h2>
+            <h2>Вход</h2>
             <p>Введите номер телефона и пароль.</p>
             <input type="text" id="login" placeholder="Номер телефона (логин)" />
             <input type="password" id="password" placeholder="Пароль" />
             <button onclick="login()">Войти</button>
         </div>
 
+        <!-- Экран выбора разделов -->
+        <div id="dashboard" style="display: none;">
+            <h2>Выберите раздел</h2>
+            <div class="choice-box" onclick="goToTab('map')">Карта возможностей</div>
+            <div class="choice-box" onclick="goToTab('schedule')">График</div>
+            <div id="admin-box" class="choice-box" onclick="goToAdmin()" style="display: none;">
+                Администратор
+            </div>
+        </div>
+
+        <!-- Календарь и вкладки -->
         <div id="calendar_form" style="display: none;">
             <div class="form">
                 <h2 id="month_title">Пожелания на месяц</h2>
@@ -168,6 +195,7 @@
         </div>
     </div>
 
+    <!-- Модальное окно выбора статуса -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3>Выберите статус</h3>
@@ -236,12 +264,8 @@
                 currentLogin = "manager";
                 localStorage.setItem("currentLogin", currentLogin);
                 document.getElementById("login_form").style.display = "none";
-                document.getElementById("calendar_form").style.display = "block";
-                document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
-                document.getElementById("emp_name").value = "Менеджер";
-                prefs = {};
-                generateMonthGrid();
-                renderSchedule();
+                document.getElementById("dashboard").style.display = "block";
+                document.getElementById("admin-box").style.display = "block";
                 return;
             }
 
@@ -255,18 +279,7 @@
             currentLogin = loginInput;
             localStorage.setItem("currentLogin", currentLogin);
             document.getElementById("login_form").style.display = "none";
-            document.getElementById("calendar_form").style.display = "block";
-            document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
-            document.getElementById("emp_name").value = user.name;
-
-            const key = `schedule_prefs_${month}_${currentLogin}`;
-            const savedPrefs = localStorage.getItem(key);
-            if (savedPrefs) {
-                prefs = JSON.parse(savedPrefs);
-            }
-
-            generateMonthGrid();
-            renderSchedule();
+            document.getElementById("dashboard").style.display = "block";
         }
 
         function generateMonthGrid() {
@@ -427,6 +440,18 @@ ${monthDates[dayIndex].weekDay}
             });
         }
 
+        // Переход к разделу
+        function goToTab(tabName) {
+            document.getElementById("dashboard").style.display = "none";
+            document.getElementById("calendar_form").style.display = "block";
+            switchTab(tabName);
+        }
+
+        // Переход к админке
+        function goToAdmin() {
+            window.location.href = "manager.html";
+        }
+
         // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = async () => {
             await loadUsers();
@@ -442,7 +467,8 @@ ${monthDates[dayIndex].weekDay}
                 const user = users[currentLogin];
                 if (user) {
                     document.getElementById("login_form").style.display = "none";
-                    document.getElementById("calendar_form").style.display = "block";
+                    document.getElementById("dashboard").style.display = "block";
+
                     document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
                     document.getElementById("emp_name").value = user.name;
 
@@ -456,7 +482,9 @@ ${monthDates[dayIndex].weekDay}
                     renderSchedule();
                 } else if (currentLogin === "manager") {
                     document.getElementById("login_form").style.display = "none";
-                    document.getElementById("calendar_form").style.display = "block";
+                    document.getElementById("dashboard").style.display = "block";
+                    document.getElementById("admin-box").style.display = "block";
+
                     document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
                     document.getElementById("emp_name").value = "Менеджер";
                     prefs = {};
