@@ -96,35 +96,6 @@
         .modal-btn.work { background-color: #81c784; color: #000; }
         .modal-btn.off  { background-color: #e57373; color: #000; }
 
-        /* Вкладки */
-        #tabs {
-            margin: 10px 0;
-            display: flex;
-            gap: 5px;
-        }
-        .tab-btn {
-            padding: 8px 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px 5px 0 0;
-            cursor: pointer;
-            background-color: #f0f0f0;
-        }
-        .tab-btn.active {
-            background-color: #fff;
-            border-bottom: none;
-            font-weight: bold;
-        }
-        .tab-pane {
-            display: none;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        .tab-pane.active {
-            display: block;
-        }
-
         /* Экран выбора разделов */
         .choice-box {
             padding: 15px;
@@ -157,40 +128,30 @@
         <!-- Экран выбора разделов -->
         <div id="dashboard" style="display: none;">
             <h2>Выберите раздел</h2>
-            <div class="choice-box" onclick="goToTab('map')">Карта возможностей</div>
-            <div class="choice-box" onclick="goToTab('schedule')">График</div>
+            <div class="choice-box" onclick="goToMap()">Карта возможностей</div>
+            <div class="choice-box" onclick="goToSchedule()">График</div>
             <div id="admin-box" class="choice-box" onclick="goToAdmin()" style="display: none;">
                 Администратор
             </div>
         </div>
 
-        <!-- Календарь и вкладки -->
-        <div id="calendar_form" style="display: none;">
+        <!-- Карта возможностей -->
+        <div id="map_form" style="display: none;">
             <div class="form">
-                <h2 id="month_title">Пожелания на месяц</h2>
+                <h2 id="month_title_map">Пожелания на месяц</h2>
                 <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный). Как будет и на том спасибо :)</p>
-                <input type="text" id="emp_name" placeholder="Ваше имя" readonly />
+                <input type="text" id="emp_name_map" placeholder="Ваше имя" readonly />
+                <div class="month-grid" id="month_grid_map"></div>
+                <button onclick="savePreferencesMap()">Сохранить пожелания</button>
+            </div>
+        </div>
 
-                <!-- Вкладки (скрыты на экране выбора) -->
-                <div id="tabs" style="display: none;">
-                    <button class="tab-btn active" data-tab="map">Карта возможностей</button>
-                    <button class="tab-btn" data-tab="schedule">График</button>
-                </div>
-
-                <div id="tab-content">
-                    <!-- Вкладка "Карта возможностей" -->
-                    <div id="tab-map" class="tab-pane active">
-                        <div class="month-grid" id="month_grid"></div>
-                        <button onclick="savePreferences()">Сохранить пожелания</button>
-                    </div>
-
-                    <!-- Вкладка "График" -->
-                    <div id="tab-schedule" class="tab-pane">
-                        <h3>Фактический график</h3>
-                        <p>Дни, которые менеджер проставил вам рабочими (10–20):</p>
-                        <div id="schedule_grid" class="month-grid"></div>
-                    </div>
-                </div>
+        <!-- График -->
+        <div id="schedule_form" style="display: none;">
+            <div class="form">
+                <h2 id="month_title_schedule">Фактический график</h2>
+                <p>Дни, которые менеджер проставил вам рабочими (10–20):</p>
+                <div class="month-grid" id="schedule_grid"></div>
             </div>
         </div>
     </div>
@@ -282,8 +243,8 @@
             document.getElementById("dashboard").style.display = "block";
         }
 
-        function generateMonthGrid() {
-            const grid = document.getElementById("month_grid");
+        function generateMonthGridMap() {
+            const grid = document.getElementById("month_grid_map");
             grid.innerHTML = "";
 
             const firstDate = monthDates[0].dateObj;
@@ -382,8 +343,8 @@ ${monthDates[dayIndex].weekDay}
             currentCell = null;
         }
 
-        function savePreferences() {
-            const grid = document.getElementById("month_grid");
+        function savePreferencesMap() {
+            const grid = document.getElementById("month_grid_map");
             const selectedDays = [];
             const workDays = [];
 
@@ -397,7 +358,7 @@ ${monthDates[dayIndex].weekDay}
             });
 
             prefs = {
-                name: document.getElementById("emp_name").value,
+                name: document.getElementById("emp_name_map").value,
                 days: selectedDays,
                 workDays: workDays
             };
@@ -405,16 +366,6 @@ ${monthDates[dayIndex].weekDay}
             const key = `schedule_prefs_${month}_${currentLogin}`;
             localStorage.setItem(key, JSON.stringify(prefs));
             alert(`Пожелания на ${monthName} ${year} сохранены!`);
-        }
-
-        // Переключение вкладок
-        function switchTab(tabName) {
-            document.querySelectorAll(".tab-btn").forEach(btn => {
-                btn.classList.toggle("active", btn.dataset.tab === tabName);
-            });
-            document.querySelectorAll(".tab-pane").forEach(pane => {
-                pane.classList.toggle("active", pane.id === "tab-" + tabName);
-            });
         }
 
         // Рисуем график (7 ячеек 10–20)
@@ -440,13 +391,21 @@ ${monthDates[dayIndex].weekDay}
             });
         }
 
-        // Переход к разделу
-        function goToTab(tabName) {
+        // Переход к разделу "Карта возможностей"
+        function goToMap() {
             document.getElementById("dashboard").style.display = "none";
-            document.getElementById("calendar_form").style.display = "block";
-            document.getElementById("tabs").style.display = "flex";
+            document.getElementById("map_form").style.display = "block";
+            document.getElementById("month_title_map").textContent = `Пожелания на ${monthName} ${year}`;
+            document.getElementById("emp_name_map").value = users[currentLogin].name;
+            generateMonthGridMap();
+        }
 
-            switchTab(tabName);
+        // Переход к разделу "График"
+        function goToSchedule() {
+            document.getElementById("dashboard").style.display = "none";
+            document.getElementById("schedule_form").style.display = "block";
+            document.getElementById("month_title_schedule").textContent = `Фактический график — ${monthName} ${year}`;
+            renderSchedule();
         }
 
         // Переход к админке
@@ -460,9 +419,10 @@ ${monthDates[dayIndex].weekDay}
                 // Если на экране выбора — ничего не делаем
                 return;
             }
-            if (document.getElementById("calendar_form").style.display === "block") {
+            if (document.getElementById("map_form").style.display === "block" || document.getElementById("schedule_form").style.display === "block") {
                 // Если в разделе — возвращаемся на экран выбора
-                document.getElementById("calendar_form").style.display = "none";
+                document.getElementById("map_form").style.display = "none";
+                document.getElementById("schedule_form").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
                 history.pushState(null, null, location.href);
             }
@@ -472,21 +432,14 @@ ${monthDates[dayIndex].weekDay}
         window.onload = async () => {
             await loadUsers();
 
-            // Обработчики кликов по вкладкам
-            document.querySelectorAll(".tab-btn").forEach(btn => {
-                btn.onclick = () => {
-                    switchTab(btn.dataset.tab);
-                };
-            });
-
             if (currentLogin) {
                 const user = users[currentLogin];
                 if (user) {
                     document.getElementById("login_form").style.display = "none";
                     document.getElementById("dashboard").style.display = "block";
 
-                    document.getElementById("month_title").textContent = `Пожелания на ${monthName} ${year}`;
-                    document.getElementById("emp_name").value = user.name;
+                    document.getElementById("month_title_map").textContent = `Пожелания на ${monthName} ${year}`;
+                    document.getElementById("emp_name_map").value = user.name;
 
                     const key = `schedule_prefs_${month}_${currentLogin}`;
                     const savedPrefs = localStorage.getItem(key);
@@ -494,17 +447,17 @@ ${monthDates[dayIndex].weekDay}
                         prefs = JSON.parse(savedPrefs);
                     }
 
-                    generateMonthGrid();
+                    generateMonthGridMap();
                     renderSchedule();
                 } else if (currentLogin === "manager") {
                     document.getElementById("login_form").style.display = "none";
                     document.getElementById("dashboard").style.display = "block";
                     document.getElementById("admin-box").style.display = "block";
 
-                    document.getElementById("month_title").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
-                    document.getElementById("emp_name").value = "Менеджер";
+                    document.getElementById("month_title_map").textContent = `Общий график всех сотрудников — ${monthName} ${year}`;
+                    document.getElementById("emp_name_map").value = "Менеджер";
                     prefs = {};
-                    generateMonthGrid();
+                    generateMonthGridMap();
                     renderSchedule();
                 } else {
                     alert("Пользователь не найден. Пожалуйста, войдите снова.");
