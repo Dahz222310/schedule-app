@@ -110,6 +110,19 @@
         .choice-box:hover {
             background-color: #e0e0e0;
         }
+
+        /* Кнопка "Назад" */
+        .back-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+        }
+        .back-btn:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
@@ -133,6 +146,7 @@
             <div id="admin-box" class="choice-box" onclick="goToAdmin()" style="display: none;">
                 Администратор
             </div>
+            <button class="back-btn" onclick="goBack()">Назад</button>
         </div>
 
         <!-- Карта возможностей -->
@@ -143,6 +157,7 @@
                 <input type="text" id="emp_name_map" placeholder="Ваше имя" readonly />
                 <div class="month-grid" id="month_grid_map"></div>
                 <button onclick="savePreferencesMap()">Сохранить пожелания</button>
+                <button class="back-btn" onclick="goBack()">Назад</button>
             </div>
         </div>
 
@@ -152,6 +167,7 @@
                 <h2 id="month_title_schedule">Фактический график</h2>
                 <p>Дни, которые менеджер проставил вам рабочими (10–20):</p>
                 <div class="month-grid" id="schedule_grid"></div>
+                <button class="back-btn" onclick="goBack()">Назад</button>
             </div>
         </div>
     </div>
@@ -227,7 +243,6 @@
                 document.getElementById("login_form").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
                 document.getElementById("admin-box").style.display = "block";
-                history.pushState(null, null, location.href);
                 return;
             }
 
@@ -242,7 +257,6 @@
             localStorage.setItem("currentLogin", currentLogin);
             document.getElementById("login_form").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
-            history.pushState(null, null, location.href);
         }
 
         function generateMonthGridMap() {
@@ -400,7 +414,6 @@ ${monthDates[dayIndex].weekDay}
             document.getElementById("month_title_map").textContent = `Пожелания на ${monthName} ${year}`;
             document.getElementById("emp_name_map").value = users[currentLogin].name;
             generateMonthGridMap();
-            history.pushState(null, null, location.href);
         }
 
         // Переход к разделу "График"
@@ -409,7 +422,6 @@ ${monthDates[dayIndex].weekDay}
             document.getElementById("schedule_form").style.display = "block";
             document.getElementById("month_title_schedule").textContent = `Фактический график — ${monthName} ${year}`;
             renderSchedule();
-            history.pushState(null, null, location.href);
         }
 
         // Переход к админке
@@ -417,8 +429,8 @@ ${monthDates[dayIndex].weekDay}
             window.location.href = "manager.html";
         }
 
-        // Обработка кнопки "Назад"
-        window.addEventListener("popstate", function(event) {
+        // Кнопка "Назад" внутри приложения
+        function goBack() {
             const loginVisible   = document.getElementById("login_form").style.display === "block";
             const dashboardVisible = document.getElementById("dashboard").style.display === "block";
             const mapVisible     = document.getElementById("map_form").style.display === "block";
@@ -429,16 +441,14 @@ ${monthDates[dayIndex].weekDay}
                 document.getElementById("map_form").style.display = "none";
                 document.getElementById("schedule_form").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
-                history.pushState(null, null, location.href);
             } else if (dashboardVisible) {
                 // Со страницы выбора блоков возвращаемся на страницу входа
                 document.getElementById("dashboard").style.display = "none";
                 document.getElementById("login_form").style.display = "block";
-                history.pushState(null, null, location.href);
             }
-        });
+        }
 
-        // При первой загрузке страницы
+        // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = async () => {
             await loadUsers();
 
@@ -474,8 +484,6 @@ ${monthDates[dayIndex].weekDay}
                     localStorage.removeItem("currentLogin");
                 }
             }
-
-            history.pushState(null, null, location.href);
         };
     </script>
 </body>
