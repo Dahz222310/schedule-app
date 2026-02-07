@@ -171,8 +171,8 @@
                 <p>Нажмите на день, чтобы выбрать: рабочий (зелёный) или выходной (красный). Как будет и на том спасибо :)</p>
                 <input type="text" id="emp_name" placeholder="Ваше имя" readonly />
 
-                <!-- Вкладки -->
-                <div id="tabs">
+                <!-- Вкладки (скрыты на экране выбора) -->
+                <div id="tabs" style="display: none;">
                     <button class="tab-btn active" data-tab="map">Карта возможностей</button>
                     <button class="tab-btn" data-tab="schedule">График</button>
                 </div>
@@ -444,6 +444,8 @@ ${monthDates[dayIndex].weekDay}
         function goToTab(tabName) {
             document.getElementById("dashboard").style.display = "none";
             document.getElementById("calendar_form").style.display = "block";
+            document.getElementById("tabs").style.display = "flex";
+
             switchTab(tabName);
         }
 
@@ -451,6 +453,20 @@ ${monthDates[dayIndex].weekDay}
         function goToAdmin() {
             window.location.href = "manager.html";
         }
+
+        // Фиксим кнопку "Назад"
+        window.onpopstate = function(event) {
+            if (document.getElementById("dashboard").style.display === "block") {
+                // Если на экране выбора — ничего не делаем
+                return;
+            }
+            if (document.getElementById("calendar_form").style.display === "block") {
+                // Если в разделе — возвращаемся на экран выбора
+                document.getElementById("calendar_form").style.display = "none";
+                document.getElementById("dashboard").style.display = "block";
+                history.pushState(null, null, location.href);
+            }
+        };
 
         // Загружаем базу пользователей и проверяем, кто уже вошёл
         window.onload = async () => {
