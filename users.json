@@ -1,10 +1,12 @@
 {
   "375257820116": {
     "name": "Павел",
-    "password": "kroll94969496"
+    "password": "123456",
+    "role": "admin"
   },
   "375255320358": {
     "name": "Карина",
-    "password": "гражданство"
+    "password": "123456",
+    "role": "user"
   }
 }
