@@ -2,132 +2,205 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>🍔 ТутБургер Сморгонь - График АПРЕЛЬ</title>
+    <title>🍔 ТутБургер Сморгонь - Апрель 2026</title>
     <style>
         body { font-family: Arial; margin: 15px; background: #f8f9fa; }
         .container { max-width: 1000px; margin: auto; }
         h1 { text-align: center; color: #dc3545; font-size: 24px; margin-bottom: 10px; }
-        .login-form {
-            background: white; padding: 20px; border-radius: 10px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 350px; margin: 0 auto 20px;
-        }
-        .login-form input { 
-            width: 100%; padding: 10px; margin: 8px 0; border: 2px solid #ddd; 
-            border-radius: 6px; font-size: 14px; box-sizing: border-box;
-        }
-        .login-form button { 
-            width: 100%; padding: 12px; background: #dc3545; color: white; 
-            border: none; border-radius: 6px; font-size: 16px; cursor: pointer;
-        }
-        .month-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .screen { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .screen.active { display: block; }
+        .login-form input { width: 100%; padding: 10px; margin: 8px 0; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        .login-form button { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin: 5px 0; }
+        .menu-btn { display: inline-block; padding: 12px 20px; margin: 8px 5px 0 0; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .month-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
         .day-cell {
-            flex: 1 1 calc(14.28% - 8px);
-            min-height: 70px; padding: 8px 4px;
-            border: 2px solid #dee2e6; border-radius: 8px; 
-            text-align: center; cursor: pointer; font-size: 12px; font-weight: bold;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            position: relative; transition: all 0.2s;
-            display: flex; flex-direction: column; justify-content: center;
+            flex: 1 1 calc(14.28% - 6px); min-height: 65px; padding: 6px 3px;
+            border: 2px solid #dee2e6; border-radius: 6px; text-align: center; 
+            font-size: 11px; font-weight: bold; display: flex; flex-direction: column; justify-content: center;
+            transition: all 0.2s; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
-        .day-cell.inactive {
-            background: #e9ecef; border-color: #adb5bd; cursor: not-allowed; opacity: 0.5;
-        }
-        .day-cell.inactive::before { content: "🔒"; }
-        .day-cell:hover:not(.inactive) { transform: scale(1.03); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        .day-cell::before { content: "🍔"; font-size: 20px; margin-bottom: 2px; }
-        .day-cell.work { 
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); 
-            border-color: #28a745; color: #155724; 
-        }
+        .day-cell::before { content: "🍔"; font-size: 18px; margin-bottom: 1px; }
+        .day-cell.work { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-color: #28a745; color: #155724; }
         .day-cell.work::before { content: "✅🍔"; }
-        .day-cell.off { 
-            background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%); 
-            border-color: #dc3545; color: #721c24; 
-        }
+        .day-cell.off { background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%); border-color: #dc3545; color: #721c24; }
         .day-cell.off::before { content: "❌🍔"; }
-        #grid { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        @media print { body { background: white; margin: 0; } .container { max-width: none; } #login { display: none !important; } }
+        .day-cell.inactive { background: #e9ecef; border-color: #adb5bd; cursor: not-allowed; opacity: 0.5; }
+        .day-cell.inactive::before { content: "🔒"; }
+        .final-schedule { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; }
+        .final-schedule::before { content: "🎯"; }
+        @media print { body { background: white; margin: 0; } .screen:not(.active) { display: none !important; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍔 ТутБургер Сморгонь</h1>
-        <div class="login-form" id="login">
-            <h2>График АПРЕЛЬ 2026</h2>
-            <input type="text" id="phone" placeholder="Имя сотрудника">
-            <input type="password" id="pass" placeholder="Пароль"> <!-- ✅ ПАРОЛЬ ВЕРНУТ -->
-            <button onclick="enter()">🚀 Открыть график</button>
-        </div>
-        <div id="grid" style="display:none;">
-            <h2>📅 АПРЕЛЬ 2026 — 1-е число СРЕДА</h2>
-            <div class="month-grid" id="days">
-                <!-- НЕАКТИВНЫЕ дни марта -->
-                <div class="day-cell inactive" data-day="30" data-weekday="Пн">30.03<br>Пн</div>
-                <div class="day-cell inactive" data-day="31" data-weekday="Вт">31.03<br>Вт</div>
-                <!-- ВЕСЬ АПРЕЛЬ (30 дней) -->
-                <div class="day-cell" data-day="1" data-weekday="Ср">1 Ср</div>
-                <div class="day-cell" data-day="2" data-weekday="Чт">2 Чт</div>
-                <div class="day-cell" data-day="3" data-weekday="Пт">3 Пт</div>
-                <div class="day-cell" data-day="4" data-weekday="Сб">4 Сб</div>
-                <div class="day-cell" data-day="5" data-weekday="Вс">5 Вс</div>
-                <div class="day-cell" data-day="6" data-weekday="Пн">6 Пн</div>
-                <div class="day-cell" data-day="7" data-weekday="Вт">7 Вт</div>
-                <div class="day-cell" data-day="8" data-weekday="Ср">8 Ср</div>
-                <div class="day-cell" data-day="9" data-weekday="Чт">9 Чт</div>
-                <div class="day-cell" data-day="10" data-weekday="Пт">10 Пт</div>
-                <div class="day-cell" data-day="11" data-weekday="Сб">11 Сб</div>
-                <div class="day-cell" data-day="12" data-weekday="Вс">12 Вс</div>
-                <div class="day-cell" data-day="13" data-weekday="Пн">13 Пн</div>
-                <div class="day-cell" data-day="14" data-weekday="Вт">14 Вт</div>
-                <div class="day-cell" data-day="15" data-weekday="Ср">15 Ср</div>
-                <div class="day-cell" data-day="16" data-weekday="Чт">16 Чт</div>
-                <div class="day-cell" data-day="17" data-weekday="Пт">17 Пт</div>
-                <div class="day-cell" data-day="18" data-weekday="Сб">18 Сб</div>
-                <div class="day-cell" data-day="19" data-weekday="Вс">19 Вс</div>
-                <div class="day-cell" data-day="20" data-weekday="Пн">20 Пн</div>
-                <div class="day-cell" data-day="21" data-weekday="Вт">21 Вт</div>
-                <div class="day-cell" data-day="22" data-weekday="Ср">22 Ср</div>
-                <div class="day-cell" data-day="23" data-weekday="Чт">23 Чт</div>
-                <div class="day-cell" data-day="24" data-weekday="Пт">24 Пт</div>
-                <div class="day-cell" data-day="25" data-weekday="Сб">25 Сб</div>
-                <div class="day-cell" data-day="26" data-weekday="Вс">26 Вс</div>
-                <div class="day-cell" data-day="27" data-weekday="Пн">27 Пн</div>
-                <div class="day-cell" data-day="28" data-weekday="Вт">28 Вт</div>
-                <div class="day-cell" data-day="29" data-weekday="Ср">29 Ср</div>
-                <div class="day-cell" data-day="30" data-weekday="Чт">30 Чт</div>
+        <h1>🍔 ТутБургер Сморгонь - АПРЕЛЬ 2026</h1>
+        
+        <!-- 1. ВХОД -->
+        <div id="login" class="screen active">
+            <div class="login-form">
+                <h2>Вход в систему</h2>
+                <input type="text" id="phone" placeholder="Телефон">
+                <input type="password" id="pass" placeholder="Пароль">
+                <button onclick="login()">🚀 Войти</button>
             </div>
         </div>
+
+        <!-- 2. МЕНЮ СОТРУДНИКА -->
+        <div id="menu" class="screen">
+            <h2>Добро пожаловать!</h2>
+            <button class="menu-btn" onclick="showWishes()">📝 Мои пожелания</button>
+            <button class="menu-btn" onclick="showFinalSchedule()">📋 График</button>
+            <button class="menu-btn" onclick="logout()" style="background: #6c757d;">← Выход</button>
+        </div>
+
+        <!-- 3. ПОЖЕЛАНИЯ СОТРУДНИКА (редактируемые) -->
+        <div id="wishes" class="screen">
+            <h2>📝 Мои пожелания - Апрель</h2>
+            <div class="month-grid" id="wishes-days"></div>
+            <button class="menu-btn" onclick="backToMenu()">← В меню</button>
+        </div>
+
+        <!-- 4. ФИНАЛЬНЫЙ ГРАФИК (ТОЛЬКО ПРОСМОТР) -->
+        <div id="final-schedule" class="screen">
+            <h2>📋 ФИНАЛЬНЫЙ ГРАФИК (от управляющего)</h2>
+            <div class="month-grid" id="final-days"></div>
+            <p style="text-align: center; color: #856404; font-weight: bold;">График утвержден управляющим</p>
+            <button class="menu-btn" onclick="backToMenu()">← В меню</button>
+        </div>
     </div>
+
     <script>
-        function enter() {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('grid').style.display = 'block';
+        let currentUser = null;
+        const users = {
+            '+375291234567': { password: '123', name: 'Галабурда' },
+            '+375292345678': { password: '123', name: 'Данилевич' },
+            '+375293456789': { password: '123', name: 'Подмостко' },
+            '+375294567890': { password: '123', name: 'Куранович' },
+            '+375295678901': { password: '123', name: 'Мястовская' }
+        };
+
+        // Апрельские дни (1-е число = среда)
+        const aprilDays = [
+            {num: 30, weekday: 'Пн', inactive: true, month: '03'},
+            {num: 31, weekday: 'Вт', inactive: true, month: '03'},
+            {num: 1, weekday: 'Ср', inactive: false},
+            {num: 2, weekday: 'Чт', inactive: false},
+            {num: 3, weekday: 'Пт', inactive: false},
+            {num: 4, weekday: 'Сб', inactive: false},
+            {num: 5, weekday: 'Вс', inactive: false},
+            {num: 6, weekday: 'Пн', inactive: false},
+            {num: 7, weekday: 'Вт', inactive: false},
+            {num: 8, weekday: 'Ср', inactive: false},
+            {num: 9, weekday: 'Чт', inactive: false},
+            {num: 10, weekday: 'Пт', inactive: false},
+            {num: 11, weekday: 'Сб', inactive: false},
+            {num: 12, weekday: 'Вс', inactive: false},
+            {num: 13, weekday: 'Пн', inactive: false},
+            {num: 14, weekday: 'Вт', inactive: false},
+            {num: 15, weekday: 'Ср', inactive: false},
+            {num: 16, weekday: 'Чт', inactive: false},
+            {num: 17, weekday: 'Пт', inactive: false},
+            {num: 18, weekday: 'Сб', inactive: false},
+            {num: 19, weekday: 'Вс', inactive: false},
+            {num: 20, weekday: 'Пн', inactive: false},
+            {num: 21, weekday: 'Вт', inactive: false},
+            {num: 22, weekday: 'Ср', inactive: false},
+            {num: 23, weekday: 'Чт', inactive: false},
+            {num: 24, weekday: 'Пт', inactive: false},
+            {num: 25, weekday: 'Сб', inactive: false},
+            {num: 26, weekday: 'Вс', inactive: false},
+            {num: 27, weekday: 'Пн', inactive: false},
+            {num: 28, weekday: 'Вт', inactive: false},
+            {num: 29, weekday: 'Ср', inactive: false},
+            {num: 30, weekday: 'Чт', inactive: false}
+        ];
+
+        function login() {
+            const phone = document.getElementById('phone').value;
+            const pass = document.getElementById('pass').value;
+            
+            if (users[phone] && users[pass] === pass) {
+                currentUser = users[phone];
+                document.getElementById('login').classList.remove('active');
+                document.getElementById('menu').classList.add('active');
+                document.querySelector('#menu h2').textContent = `Добро пожаловать, ${currentUser.name}!`;
+            } else {
+                alert('❌ Неверный логин/пароль');
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.day-cell:not(.inactive)').forEach(function(cell) {
-                cell.addEventListener('click', function() {
-                    const dayNum = this.dataset.day;
-                    const dayName = this.dataset.weekday;
-                    
-                    if (this.classList.contains('work')) {
-                        this.classList.remove('work');
-                        this.classList.add('off');
-                        this.innerHTML = dayNum + '<br>ВЫХ';
-                    } else if (this.classList.contains('off')) {
-                        this.classList.remove('off');
-                        this.innerHTML = dayNum + ' ' + dayName;
-                    } else {
-                        this.classList.add('work');
-                        this.innerHTML = dayNum + '<br>10-20';
-                    }
-                });
-            });
-        });
+        function showWishes() {
+            hideAllScreens();
+            document.getElementById('wishes').classList.add('active');
+            generateGrid('wishes-days', true); // true = редактируемый
+        }
 
-        // Печать Ctrl+P (кнопка убрана)
-        function printGrid() {
-            window.print();
+        function showFinalSchedule() {
+            hideAllScreens();
+            document.getElementById('final-schedule').classList.add('active');
+            generateGrid('final-days', false); // false = только просмотр
+            document.querySelector('#final-days').classList.add('final-schedule');
+        }
+
+        function generateGrid(containerId, editable) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            aprilDays.forEach(day => {
+                const cell = document.createElement('div');
+                cell.className = day.inactive ? 'day-cell inactive' : 'day-cell';
+                cell.dataset.day = day.num;
+                cell.dataset.weekday = day.weekday;
+                
+                if (day.inactive) {
+                    cell.innerHTML = `${day.num}.${day.month || ''}<br>${day.weekday}`;
+                } else if (!editable) {
+                    // Финальный график - показывает статус от управляющего
+                    cell.innerHTML = `${day.num} ${day.weekday}`;
+                    cell.classList.add('work'); // Пока дефолтно рабочий
+                } else {
+                    cell.innerHTML = `${day.num} ${day.weekday}`;
+                }
+                
+                if (editable && !day.inactive) {
+                    cell.onclick = function() { toggleDay(this); };
+                }
+                
+                container.appendChild(cell);
+            });
+        }
+
+        function toggleDay(cell) {
+            const dayNum = cell.dataset.day;
+            const dayName = cell.dataset.weekday;
+            
+            if (cell.classList.contains('work')) {
+                cell.classList.remove('work');
+                cell.classList.add('off');
+                cell.innerHTML = dayNum + '<br>ВЫХ';
+            } else if (cell.classList.contains('off')) {
+                cell.classList.remove('off');
+                cell.innerHTML = dayNum + ' ' + dayName;
+            } else {
+                cell.classList.add('work');
+                cell.innerHTML = dayNum + '<br>10-20';
+            }
+        }
+
+        function backToMenu() {
+            hideAllScreens();
+            document.getElementById('menu').classList.add('active');
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+        }
+
+        function logout() {
+            currentUser = null;
+            hideAllScreens();
+            document.getElementById('login').classList.add('active');
         }
     </script>
 </body>
