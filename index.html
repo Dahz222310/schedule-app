@@ -49,17 +49,26 @@
         .month-grid { 
             display: grid; 
             grid-template-columns: repeat(7, 1fr);
-            gap: 4px; 
+            gap: 6px; 
             margin: 15px 0; 
-            max-width: 600px;
+            max-width: 650px;
+            justify-content: center;
         }
         .day-cell {
-            min-height: 60px; padding: 6px 2px;
-            border: 2px solid #dee2e6; border-radius: 6px; text-align: center; 
-            font-size: 11px; font-weight: bold; display: flex; flex-direction: column; justify-content: center;
-            transition: all 0.2s; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 85px; 
+            padding: 8px 4px;
+            border: 2px solid #dee2e6; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-size: 13px; 
+            font-weight: bold; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            transition: all 0.2s; 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
-        .day-cell::before { content: "🍔"; font-size: 18px; margin-bottom: 1px; }
+        .day-cell::before { content: "🍔"; font-size: 20px; margin-bottom: 2px; }
         .day-cell:hover:not(.inactive):not(.final-schedule) { transform: scale(1.02); box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
         .day-cell.work { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-color: #28a745; color: #155724; }
         .day-cell.work::before { content: "✅🍔"; }
@@ -73,6 +82,7 @@
         @media (max-width: 768px) {
             .main-container { flex-direction: column; }
             .sidebar { order: -1; margin-bottom: 20px; }
+            .day-cell { min-height: 70px; font-size: 12px; }
         }
     </style>
 </head>
@@ -149,8 +159,10 @@
         };
 
         const aprilCalendar = [
+            // Март (неактивные)
             {num: 30, weekday: 'Пн', inactive: true, month: '03'},
             {num: 31, weekday: 'Вт', inactive: true, month: '03'},
+            // Апрель
             {num: 1, weekday: 'Ср', inactive: false},
             {num: 2, weekday: 'Чт', inactive: false},
             {num: 3, weekday: 'Пт', inactive: false},
@@ -180,7 +192,11 @@
             {num: 27, weekday: 'Пн', inactive: false},
             {num: 28, weekday: 'Вт', inactive: false},
             {num: 29, weekday: 'Ср', inactive: false},
-            {num: 30, weekday: 'Чт', inactive: false}
+            {num: 30, weekday: 'Чт', inactive: false},
+            // Май (неактивные)
+            {num: 1, weekday: 'Пт', inactive: true, month: '05'},
+            {num: 2, weekday: 'Сб', inactive: true, month: '05'},
+            {num: 3, weekday: 'Вс', inactive: true, month: '05'}
         ];
 
         function login() {
