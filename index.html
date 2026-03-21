@@ -10,11 +10,28 @@
         .screen { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .screen.active { display: block; }
         .login-form input { width: 100%; padding: 10px; margin: 8px 0; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-        .login-form button { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin: 5px 0; }
-        .menu-btn { display: inline-block; padding: 12px 20px; margin: 8px 5px 0 0; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .month-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+        .login-form button, .menu-btn { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin: 5px 0; }
+        .menu-btn { width: auto; display: inline-block; margin: 8px 5px 0 0; padding: 12px 20px; background: #007bff; }
+        .back-btn { background: #6c757d !important; }
+        .month-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); /* ✅ 7 ДНЕЙ В РЯД */
+            gap: 4px; 
+            margin: 15px 0; 
+            max-width: 600px;
+        }
+        .weekday-header {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #495057;
+            font-size: 12px;
+        }
         .day-cell {
-            flex: 1 1 calc(14.28% - 6px); min-height: 65px; padding: 6px 3px;
+            min-height: 60px; padding: 6px 2px;
             border: 2px solid #dee2e6; border-radius: 6px; text-align: center; 
             font-size: 11px; font-weight: bold; display: flex; flex-direction: column; justify-content: center;
             transition: all 0.2s; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -27,8 +44,15 @@
         .day-cell.off::before { content: "❌🍔"; }
         .day-cell.inactive { background: #e9ecef; border-color: #adb5bd; cursor: not-allowed; opacity: 0.5; }
         .day-cell.inactive::before { content: "🔒"; }
-        .final-schedule { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; cursor: default; }
-        .final-schedule::before { content: "🎯"; }
+        .final-schedule .day-cell { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; cursor: default; }
+        .final-schedule .day-cell::before { content: "🎯"; }
+        .header-pn { background: #007bff; color: white; }
+        .header-vt { background: #28a745; color: white; }
+        .header-sr { background: #ffc107; color: #212529; }
+        .header-ct { background: #17a2b8; color: white; }
+        .header-pt { background: #dc3545; color: white; }
+        .header-sb { background: #6f42c1; color: white; }
+        .header-vs { background: #fd7e14; color: white; }
         @media print { body { background: white; margin: 0; } .screen:not(.active) { display: none !important; } }
     </style>
 </head>
@@ -40,8 +64,8 @@
         <div id="login" class="screen active">
             <div class="login-form">
                 <h2>🔐 Вход в систему</h2>
-                <input type="text" id="phone" placeholder="Телефон (+375XXXXXXXXX)">
-                <input type="password" id="pass" placeholder="Пароль">
+                <input type="text" id="phone" placeholder="Телефон (+375257820116)">
+                <input type="password" id="pass" placeholder="Пароль (123456)">
                 <button onclick="login()">🚀 Войти</button>
             </div>
         </div>
@@ -49,41 +73,59 @@
         <!-- 2. МЕНЮ -->
         <div id="menu" class="screen">
             <h2 id="welcome">Добро пожаловать!</h2>
-            <button class="menu-btn" onclick="showWishes()">📝 Мои пожелания</button>
-            <button class="menu-btn" onclick="showFinalSchedule()">📋 График</button>
-            <button class="menu-btn" onclick="logout()" style="background: #6c757d;">← Выход</button>
+            <div>
+                <button class="menu-btn" onclick="showWishes()">📝 Мои пожелания</button>
+                <button class="menu-btn" onclick="showFinalSchedule()">📋 График</button>
+            </div>
+            <button class="menu-btn back-btn" onclick="logout()">← Выход</button>
         </div>
 
-        <!-- 3. ПОЖЕЛАНИЯ (РЕДАКТИРУЕМЫЕ) -->
+        <!-- 3. ПОЖЕЛАНИЯ -->
         <div id="wishes" class="screen">
             <h2>📝 Мои пожелания - Апрель</h2>
+            <div class="weekday-header">
+                <div class="header-pn">ПН</div>
+                <div class="header-vt">ВТ</div>
+                <div class="header-sr">СР</div>
+                <div class="header-ct">ЧТ</div>
+                <div class="header-pt">ПТ</div>
+                <div class="header-sb">СБ</div>
+                <div class="header-vs">ВС</div>
+            </div>
             <div class="month-grid" id="wishes-days"></div>
-            <button class="menu-btn" onclick="backToMenu()">← В меню</button>
+            <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
         </div>
 
-        <!-- 4. ФИНАЛЬНЫЙ ГРАФИК (ТОЛЬКО ПРОСМОТР) -->
+        <!-- 4. ФИНАЛЬНЫЙ ГРАФИК -->
         <div id="final-schedule" class="screen">
             <h2>📋 ФИНАЛЬНЫЙ ГРАФИК</h2>
             <p style="text-align: center; color: #856404; font-weight: bold; font-size: 14px;">Утверждено управляющим • Только просмотр</p>
-            <div class="month-grid" id="final-days"></div>
-            <button class="menu-btn" onclick="backToMenu()">← В меню</button>
+            <div class="weekday-header">
+                <div class="header-pn">ПН</div>
+                <div class="header-vt">ВТ</div>
+                <div class="header-sr">СР</div>
+                <div class="header-ct">ЧТ</div>
+                <div class="header-pt">ПТ</div>
+                <div class="header-sb">СБ</div>
+                <div class="header-vs">ВС</div>
+            </div>
+            <div class="month-grid final-schedule" id="final-days"></div>
+            <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
         </div>
     </div>
 
     <script>
         let currentUser = null;
         
-        // ✅ ВАШ ЛОГИН ДОБАВЛЕН + все остальные
         const users = {
-            '+375257820116': { password: '123456', name: 'Павел' },  // ✅ ВАШ ЛОГИН
+            '+375257820116': { password: '123456', name: 'Павел' },
             '+375291234567': { password: '123', name: 'Галабурда' },
-            '+375292345678': { password: '123', name: 'Данилевич' },
-            '+375293456789': { password: '123', name: 'Подмостко' },
-            '+375294567890': { password: '123', name: 'Куранович' },
-            '+375295678901': { password: '123', name: 'Мястовская' }
+            '+375292345678': { password: '123', name: 'Данилевич' }
         };
 
-        const aprilDays = [
+        // ✅ АПРЕЛЬ: 30-31 марта + весь апрель (с понедельника по воскресенье)
+        const aprilCalendar = [
+            // Первая неделя (30.03-5.04)
             {num: 30, weekday: 'Пн', inactive: true, month: '03'},
             {num: 31, weekday: 'Вт', inactive: true, month: '03'},
             {num: 1, weekday: 'Ср', inactive: false},
@@ -91,6 +133,7 @@
             {num: 3, weekday: 'Пт', inactive: false},
             {num: 4, weekday: 'Сб', inactive: false},
             {num: 5, weekday: 'Вс', inactive: false},
+            // Вторая неделя
             {num: 6, weekday: 'Пн', inactive: false},
             {num: 7, weekday: 'Вт', inactive: false},
             {num: 8, weekday: 'Ср', inactive: false},
@@ -98,6 +141,7 @@
             {num: 10, weekday: 'Пт', inactive: false},
             {num: 11, weekday: 'Сб', inactive: false},
             {num: 12, weekday: 'Вс', inactive: false},
+            // Третья неделя
             {num: 13, weekday: 'Пн', inactive: false},
             {num: 14, weekday: 'Вт', inactive: false},
             {num: 15, weekday: 'Ср', inactive: false},
@@ -105,6 +149,7 @@
             {num: 17, weekday: 'Пт', inactive: false},
             {num: 18, weekday: 'Сб', inactive: false},
             {num: 19, weekday: 'Вс', inactive: false},
+            // Четвертая неделя
             {num: 20, weekday: 'Пн', inactive: false},
             {num: 21, weekday: 'Вт', inactive: false},
             {num: 22, weekday: 'Ср', inactive: false},
@@ -112,6 +157,7 @@
             {num: 24, weekday: 'Пт', inactive: false},
             {num: 25, weekday: 'Сб', inactive: false},
             {num: 26, weekday: 'Вс', inactive: false},
+            // Пятая неделя
             {num: 27, weekday: 'Пн', inactive: false},
             {num: 28, weekday: 'Вт', inactive: false},
             {num: 29, weekday: 'Ср', inactive: false},
@@ -124,7 +170,7 @@
             
             if (users[phone] && users[phone].password === pass) {
                 currentUser = users[phone];
-                document.getElementById('login').classList.remove('active');
+                hideAllScreens();
                 document.getElementById('menu').classList.add('active');
                 document.getElementById('welcome').textContent = `Добро пожаловать, ${currentUser.name}!`;
             } else {
@@ -137,21 +183,20 @@
         function showWishes() {
             hideAllScreens();
             document.getElementById('wishes').classList.add('active');
-            generateGrid('wishes-days', true);
+            generateCalendarGrid('wishes-days', true);
         }
 
         function showFinalSchedule() {
             hideAllScreens();
             document.getElementById('final-schedule').classList.add('active');
-            generateGrid('final-days', false);
+            generateCalendarGrid('final-days', false);
         }
 
-        function generateGrid(containerId, editable) {
+        function generateCalendarGrid(containerId, editable) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-            container.className = editable ? '' : 'final-schedule';
             
-            aprilDays.forEach(day => {
+            aprilCalendar.forEach((day, index) => {
                 const cell = document.createElement('div');
                 cell.className = day.inactive ? 'day-cell inactive' : 'day-cell';
                 cell.dataset.day = day.num;
@@ -160,11 +205,10 @@
                 if (day.inactive) {
                     cell.innerHTML = `${day.num}.${day.month}<br>${day.weekday}`;
                 } else if (!editable) {
-                    // Финальный график - рабочий по умолчанию
                     cell.classList.add('work');
                     cell.innerHTML = `${day.num}<br>10-20`;
                 } else {
-                    cell.innerHTML = `${day.num} ${day.weekday}`;
+                    cell.innerHTML = `${day.num}<br>${day.weekday}`;
                 }
                 
                 if (editable && !day.inactive) {
@@ -182,17 +226,17 @@
             if (cell.classList.contains('work')) {
                 cell.classList.remove('work');
                 cell.classList.add('off');
-                cell.innerHTML = dayNum + '<br>ВЫХ';
+                cell.innerHTML = `${dayNum}<br>ВЫХ`;
             } else if (cell.classList.contains('off')) {
                 cell.classList.remove('off');
-                cell.innerHTML = dayNum + ' ' + dayName;
+                cell.innerHTML = `${dayNum}<br>${dayName}`;
             } else {
                 cell.classList.add('work');
-                cell.innerHTML = dayNum + '<br>10-20';
+                cell.innerHTML = `${dayNum}<br>10-20`;
             }
         }
 
-        function backToMenu() {
+        function goToMenu() {
             hideAllScreens();
             document.getElementById('menu').classList.add('active');
         }
@@ -209,9 +253,10 @@
             document.getElementById('pass').value = '';
         }
 
-        // Enter для быстрого входа
         document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
+            if (e.key === 'Enter' && document.getElementById('login').classList.contains('active')) {
+                login();
+            }
         });
     </script>
 </body>
