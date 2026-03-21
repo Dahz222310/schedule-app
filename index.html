@@ -29,11 +29,18 @@
         }
         .day-cell:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
         .day-cell::before { content: "🍔"; font-size: 28px; display: block; margin: 5px 0; }
-        .day-cell.work { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-color: #28a745; color: #155724; }
+        .day-cell.work { 
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); 
+            border-color: #28a745; color: #155724; 
+        }
         .day-cell.work::before { content: "✅🍔"; }
-        .day-cell.off { background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%); border-color: #dc3545; color: #721c24; }
+        .day-cell.off { 
+            background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%); 
+            border-color: #dc3545; color: #721c24; 
+        }
         .day-cell.off::before { content: "❌🍔"; }
         #grid { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        @media print { body { background: white; } .container { max-width: none; } }
     </style>
 </head>
 <body>
@@ -41,13 +48,13 @@
         <h1>🍔 ТутБургер Сморгонь</h1>
         <div class="login-form" id="login">
             <h2>Вход в график</h2>
-            <input type="text" id="phone" placeholder="Телефон (8XXXXXXXXX)">
+            <input type="text" id="phone" placeholder="Телефон">
             <input type="password" id="pass" placeholder="Пароль">
             <button onclick="enter()">🚀 Войти</button>
         </div>
         <div id="grid" style="display:none;">
-            <h2>📅 МАРТ 2026 (23-31) - КЛИКАЙТЕ ПО ДНЯМ!</h2>
-            <div class="month-grid">
+            <h2>📅 МАРТ 2026 (23-31) - КЛИКАЙТЕ ПО ДНЯМ</h2>
+            <div class="month-grid" id="days">
                 <div class="day-cell" data-day="23">23 Пн</div>
                 <div class="day-cell" data-day="24">24 Вт</div>
                 <div class="day-cell" data-day="25">25 Ср</div>
@@ -58,7 +65,7 @@
                 <div class="day-cell" data-day="30">30 Пн</div>
                 <div class="day-cell" data-day="31">31 Вт</div>
             </div>
-            <button onclick="printGrid()" style="width:100%; padding:15px; background:#007bff; color:white; border:none; border-radius:8px; font-size:18px; margin-top:20px; cursor:pointer;">🖨️ Печать графика</button>
+            <button onclick="printGrid()" style="width:100%; padding:15px; background:#007bff; color:white; border:none; border-radius:8px; font-size:18px; margin-top:20px; cursor:pointer;">🖨️ Печать А4</button>
         </div>
     </div>
     <script>
@@ -66,25 +73,35 @@
             document.getElementById('login').style.display = 'none';
             document.getElementById('grid').style.display = 'block';
         }
-        document.querySelectorAll('.day-cell').forEach(cell => {
-            cell.onclick = function() {
-                if(this.classList.contains('work')) {
-                    this.classList.remove('work');
-                    this.classList.add('off');
-                    this.innerHTML = this.dataset.day + '<br>ВЫХ';
-                } else if(this.classList.contains('off')) {
-                    this.classList.remove('off');
-                    this.innerHTML = this.dataset.day + ' ' + this.textContent.split(' ')[1];
-                    this.classList.add('day-cell');
-                } else {
-                    this.classList.remove('day-cell');
-                    this.classList.add('work');
-                    this.innerHTML = this.dataset.day + '<br>10-20';
-                }
-            }
+
+        // ✅ ИСПРАВЛЕННЫЙ обработчик кликов
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.day-cell').forEach(function(cell) {
+                cell.addEventListener('click', function() {
+                    const dayNum = this.dataset.day;
+                    const dayName = this.textContent.split(' ')[1];
+                    
+                    if (this.classList.contains('work')) {
+                        // Рабочий → Выходной
+                        this.classList.remove('work');
+                        this.classList.add('off');
+                        this.innerHTML = dayNum + '<br>ВЫХ';
+                    } else if (this.classList.contains('off')) {
+                        // Выходной → Пустой
+                        this.classList.remove('off');
+                        this.innerHTML = dayNum + ' ' + dayName;
+                    } else {
+                        // Пустой → Рабочий
+                        this.classList.add('work');
+                        this.innerHTML = dayNum + '<br>10-20';
+                    }
+                });
+            });
         });
-        function printGrid() { window.print(); }
+
+        function printGrid() {
+            window.print();
+        }
     </script>
 </body>
 </html>
-
