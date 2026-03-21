@@ -5,7 +5,38 @@
     <title>🍔 ТутБургер Сморгонь - Апрель 2026</title>
     <style>
         body { font-family: Arial; margin: 15px; background: #f8f9fa; }
-        .container { max-width: 1000px; margin: auto; }
+        .main-container {
+            display: flex; 
+            gap: 30px; 
+            max-width: 1200px; 
+            margin: auto;
+        }
+        .content { flex: 1; }
+        .sidebar {
+            flex: 0 0 280px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            height: fit-content;
+            margin-top: 20px;
+        }
+        .sidebar h3 {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-style: italic;
+            color: #856404;
+            margin: 0 0 25px 0;
+            line-height: 1.4;
+            text-align: center;
+        }
+        .burger-logo {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            display: block;
+            filter: drop-shadow(0 4px 12px rgba(220,53,69,0.3));
+        }
         h1 { text-align: center; color: #dc3545; font-size: 24px; margin-bottom: 10px; }
         .screen { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .screen.active { display: block; }
@@ -15,7 +46,7 @@
         .back-btn { background: #6c757d !important; }
         .month-grid { 
             display: grid; 
-            grid-template-columns: repeat(7, 1fr); /* 7 дней в ряд */
+            grid-template-columns: repeat(7, 1fr);
             gap: 4px; 
             margin: 15px 0; 
             max-width: 600px;
@@ -36,46 +67,69 @@
         .day-cell.inactive::before { content: "🔒"; }
         .final-schedule .day-cell { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; cursor: default; }
         .final-schedule .day-cell::before { content: "🎯"; }
-        @media print { body { background: white; margin: 0; } .screen:not(.active) { display: none !important; } }
+        @media print { body { background: white; margin: 0; } .sidebar { display: none; } .screen:not(.active) { display: none !important; } }
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar { order: -1; margin-bottom: 20px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🍔 ТутБургер Сморгонь - АПРЕЛЬ 2026</h1>
         
-        <!-- 1. ВХОД -->
-        <div id="login" class="screen active">
-            <div class="login-form">
-                <h2>🔐 Вход в систему</h2>
-                <input type="text" id="phone" placeholder="Телефон (+375257820116)">
-                <input type="password" id="pass" placeholder="Пароль (123456)">
-                <button onclick="login()">🚀 Войти</button>
+        <div class="main-container">
+            <!-- ОСНОВНОЙ КОНТЕНТ -->
+            <div class="content">
+                <!-- 1. ВХОД -->
+                <div id="login" class="screen active">
+                    <div class="login-form">
+                        <h2>🔐 Вход в систему</h2>
+                        <input type="text" id="phone" placeholder="Телефон (+375257820116)">
+                        <input type="password" id="pass" placeholder="Пароль (123456)">
+                        <button onclick="login()">🚀 Войти</button>
+                    </div>
+                </div>
+
+                <!-- 2. МЕНЮ -->
+                <div id="menu" class="screen">
+                    <h2 id="welcome">Добро пожаловать!</h2>
+                    <div>
+                        <button class="menu-btn" onclick="showWishes()">📝 Мои пожелания</button>
+                        <button class="menu-btn" onclick="showFinalSchedule()">📋 График</button>
+                    </div>
+                    <button class="menu-btn back-btn" onclick="logout()">← Выход</button>
+                </div>
+
+                <!-- 3. ПОЖЕЛАНИЯ -->
+                <div id="wishes" class="screen">
+                    <h2>📝 Мои пожелания - Апрель</h2>
+                    <div class="month-grid" id="wishes-days"></div>
+                    <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
+                </div>
+
+                <!-- 4. ФИНАЛЬНЫЙ ГРАФИК -->
+                <div id="final-schedule" class="screen">
+                    <h2>📋 ФИНАЛЬНЫЙ ГРАФИК</h2>
+                    <p style="text-align: center; color: #856404; font-weight: bold; font-size: 14px;">Утверждено управляющим • Только просмотр</p>
+                    <div class="month-grid final-schedule" id="final-days"></div>
+                    <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
+                </div>
             </div>
-        </div>
 
-        <!-- 2. МЕНЮ -->
-        <div id="menu" class="screen">
-            <h2 id="welcome">Добро пожаловать!</h2>
-            <div>
-                <button class="menu-btn" onclick="showWishes()">📝 Мои пожелания</button>
-                <button class="menu-btn" onclick="showFinalSchedule()">📋 График</button>
+            <!-- ✅ БОКОВАЯ ПАНЕЛЬ СПРАВА -->
+            <div class="sidebar">
+                <h3>"Создавая возможности, создавай настроение."</h3>
+                <svg class="burger-logo" viewBox="0 0 200 200" fill="none">
+                    ircle cx="100" cy="100" r="85" fill="#dc3545"/>
+                    <rect x="55" y="75" width="90" height="18" rx="9" fill="white"/>
+                    <rect x="55" y="102" width="90" height="18" rx="9" fill="white"/>
+                    <rect x="55" y="129" width="90" height="18" rx="9" fill="white"/>
+                    ircle cx="70" cy="90" r="8" fill="#ffc107"/>
+                    ircle cx="130" cy="90" r="8" fill="#ffc107"/>
+                    <path d="M65 140 Q100 155 135 140" stroke="white" stroke-width="4" fill="none"/>
+                </svg>
             </div>
-            <button class="menu-btn back-btn" onclick="logout()">← Выход</button>
-        </div>
-
-        <!-- 3. ПОЖЕЛАНИЯ (БЕЗ заголовков) -->
-        <div id="wishes" class="screen">
-            <h2>📝 Мои пожелания - Апрель</h2>
-            <div class="month-grid" id="wishes-days"></div>
-            <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
-        </div>
-
-        <!-- 4. ФИНАЛЬНЫЙ ГРАФИК (БЕЗ заголовков) -->
-        <div id="final-schedule" class="screen">
-            <h2>📋 ФИНАЛЬНЫЙ ГРАФИК</h2>
-            <p style="text-align: center; color: #856404; font-weight: bold; font-size: 14px;">Утверждено управляющим • Только просмотр</p>
-            <div class="month-grid final-schedule" id="final-days"></div>
-            <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
         </div>
     </div>
 
@@ -89,7 +143,6 @@
         };
 
         const aprilCalendar = [
-            // Неделя 1
             {num: 30, weekday: 'Пн', inactive: true, month: '03'},
             {num: 31, weekday: 'Вт', inactive: true, month: '03'},
             {num: 1, weekday: 'Ср', inactive: false},
@@ -97,7 +150,6 @@
             {num: 3, weekday: 'Пт', inactive: false},
             {num: 4, weekday: 'Сб', inactive: false},
             {num: 5, weekday: 'Вс', inactive: false},
-            // Неделя 2
             {num: 6, weekday: 'Пн', inactive: false},
             {num: 7, weekday: 'Вт', inactive: false},
             {num: 8, weekday: 'Ср', inactive: false},
@@ -105,7 +157,6 @@
             {num: 10, weekday: 'Пт', inactive: false},
             {num: 11, weekday: 'Сб', inactive: false},
             {num: 12, weekday: 'Вс', inactive: false},
-            // Неделя 3
             {num: 13, weekday: 'Пн', inactive: false},
             {num: 14, weekday: 'Вт', inactive: false},
             {num: 15, weekday: 'Ср', inactive: false},
@@ -113,7 +164,6 @@
             {num: 17, weekday: 'Пт', inactive: false},
             {num: 18, weekday: 'Сб', inactive: false},
             {num: 19, weekday: 'Вс', inactive: false},
-            // Неделя 4
             {num: 20, weekday: 'Пн', inactive: false},
             {num: 21, weekday: 'Вт', inactive: false},
             {num: 22, weekday: 'Ср', inactive: false},
@@ -121,7 +171,6 @@
             {num: 24, weekday: 'Пт', inactive: false},
             {num: 25, weekday: 'Сб', inactive: false},
             {num: 26, weekday: 'Вс', inactive: false},
-            // Неделя 5
             {num: 27, weekday: 'Пн', inactive: false},
             {num: 28, weekday: 'Вт', inactive: false},
             {num: 29, weekday: 'Ср', inactive: false},
@@ -225,3 +274,4 @@
     </script>
 </body>
 </html>
+
