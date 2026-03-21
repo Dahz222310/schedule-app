@@ -192,6 +192,7 @@
                 hideAllScreens();
                 document.getElementById('menu').classList.add('active');
                 document.getElementById('welcome').textContent = `Добро пожаловать, ${currentUser.name}!`;
+                history.pushState({screen: 'menu'}, '', '#menu');
             } else {
                 alert('❌ Неверный логин/пароль');
                 document.getElementById('phone').value = '';
@@ -203,12 +204,14 @@
             hideAllScreens();
             document.getElementById('wishes').classList.add('active');
             generateCalendarGrid('wishes-days', true);
+            history.pushState({screen: 'wishes'}, '', '#wishes');
         }
 
         function showFinalSchedule() {
             hideAllScreens();
             document.getElementById('final-schedule').classList.add('active');
             generateCalendarGrid('final-days', false);
+            history.pushState({screen: 'final-schedule'}, '', '#final-schedule');
         }
 
         function generateCalendarGrid(containerId, editable) {
@@ -258,6 +261,7 @@
         function goToMenu() {
             hideAllScreens();
             document.getElementById('menu').classList.add('active');
+            history.pushState({screen: 'menu'}, '', '#menu');
         }
 
         function hideAllScreens() {
@@ -270,7 +274,23 @@
             document.getElementById('login').classList.add('active');
             document.getElementById('phone').value = '';
             document.getElementById('pass').value = '';
+            history.pushState({screen: 'login'}, '', '#login');
         }
+
+        // Обработчик кнопки "назад" браузера
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.screen) {
+                hideAllScreens();
+                document.getElementById(event.state.screen).classList.add('active');
+                if (event.state.screen === 'wishes') {
+                    generateCalendarGrid('wishes-days', true);
+                } else if (event.state.screen === 'final-schedule') {
+                    generateCalendarGrid('final-days', false);
+                }
+            } else {
+                logout();
+            }
+        });
 
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && document.getElementById('login').classList.contains('active')) {
