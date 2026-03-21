@@ -139,6 +139,18 @@
             width: 100%;
             font-weight: bold;
         }
+        .clear-btn {
+            background: #ffc107 !important;
+            color: #212529 !important;
+            padding: 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+            font-weight: bold;
+        }
         .comment-section {
             display: none;
             margin-top: 10px;
@@ -265,6 +277,7 @@
     <script>
         let currentUser = null;
         let currentDayNum = null;
+        let currentWeekday = null;
         let isOffMode = false;
         
         const users = {
@@ -374,12 +387,12 @@
 
         function openDayOverlay(cell) {
             currentDayNum = cell.dataset.day;
-            const weekday = cell.dataset.weekday;
+            currentWeekday = cell.dataset.weekday;
             isOffMode = false;
             
             document.getElementById('overlayContent').innerHTML = `
                 <span class="close-icon" onclick="closeDayOverlay()">×</span>
-                <div class="overlay-title">📝 День ${currentDayNum} (${weekday})</div>
+                <div class="overlay-title">📝 День ${currentDayNum} (${currentWeekday})</div>
                 <div class="time-group">
                     <input type="number" class="time-input" id="startHour" min="0" max="23" value="10" step="1">
                     <span class="time-label">:</span>
@@ -392,6 +405,7 @@
                     <input type="number" class="time-input" id="endMin" min="0" max="59" value="0" step="15">
                 </div>
                 <button class="off-btn" onclick="switchToOff()">❌ Выходной</button>
+                <button class="clear-btn" onclick="switchToNeutral()">🔄 Очистить</button>
                 <div class="comment-section" id="commentSection">
                     <textarea class="comment-input" id="commentText" placeholder="Причина отсутствия..."></textarea>
                 </div>
@@ -414,6 +428,16 @@
             confirmBtn.textContent = 'Сохранить выходной';
         }
 
+        function switchToNeutral() {
+            isOffMode = false;
+            const commentSection = document.getElementById('commentSection');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            commentSection.classList.remove('active');
+            document.querySelector('.off-btn').style.display = 'block';
+            confirmBtn.textContent = 'ОК';
+        }
+
         function confirmSelection() {
             const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
             
@@ -433,6 +457,13 @@
                 cell.innerHTML = `${currentDayNum}<br>${sh}:${sm}-${eh}:${em}`;
             }
             
+            closeDayOverlay();
+        }
+
+        function clearSelection() {
+            const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
+            cell.classList.remove('work', 'off');
+            cell.innerHTML = `${currentDayNum}<br>${currentWeekday}`;
             closeDayOverlay();
         }
 
