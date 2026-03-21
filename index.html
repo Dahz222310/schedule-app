@@ -67,6 +67,7 @@
             justify-content: center;
             transition: all 0.2s; 
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            cursor: pointer;
         }
         .day-cell::before { content: "🍔"; font-size: 22px; margin-bottom: 2px; }
         .day-cell:hover:not(.inactive):not(.final-schedule) { transform: scale(1.02); box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
@@ -78,12 +79,71 @@
         .day-cell.inactive::before { content: "🔒"; }
         .final-schedule .day-cell { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; cursor: default; }
         .final-schedule .day-cell::before { content: "🎯"; }
-        @media print { body { background: white; margin: 0; } .sidebar { display: none; } .screen:not(.active) { display: none !important; } }
+
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal h3 { color: #dc3545; margin: 0 0 20px 0; text-align: center; }
+        .time-selector, .comment-input { margin: 15px 0; }
+        .time-group { display: flex; gap: 10px; margin: 10px 0; }
+        .time-input { 
+            width: 60px; padding: 10px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            text-align: center; 
+            font-size: 18px; 
+            font-weight: bold;
+        }
+        .comment-textarea {
+            width: 100%; 
+            height: 100px; 
+            padding: 10px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .modal-btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            flex: 1;
+        }
+        .btn-ok { background: #28a745; color: white; }
+        .btn-cancel { background: #6c757d; color: white; }
+
+        @media print { body { background: white; margin: 0; } .sidebar { display: none; } .screen:not(.active) { display: none !important; } .modal { display: none !important; } }
         @media (max-width: 768px) {
             .main-container { flex-direction: column; }
             .sidebar { order: -1; margin-bottom: 20px; }
             .day-cell { min-height: 55px; font-size: 13px; padding: 4px 6px; }
             .month-grid { gap: 6px; max-width: 100%; }
+            .modal-content { padding: 20px; margin: 20px; }
         }
     </style>
 </head>
@@ -150,8 +210,47 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ВЫБОРА ВРЕМЕНИ -->
+    <div id="timeModal" class="modal">
+        <div class="modal-content">
+            <h3>🕒 Выберите время работы</h3>
+            <div class="time-selector">
+                <div class="time-group">
+                    <input type="number" class="time-input" id="startHour" min="0" max="23" value="10">
+                    <span>:</span>
+                    <input type="number" class="time-input" id="startMin" min="0" max="59" value="00">
+                </div>
+                <div class="time-group">
+                    <span>до</span>
+                    <input type="number" class="time-input" id="endHour" min="0" max="23" value="20">
+                    <span>:</span>
+                    <input type="number" class="time-input" id="endMin" min="0" max="59" value="00">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeTimeModal()">Отмена</button>
+                <button class="modal-btn btn-ok" onclick="confirmTime()">ОК</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО КОММЕНТАРИЯ -->
+    <div id="commentModal" class="modal">
+        <div class="modal-content">
+            <h3>💬 Комментарий к выходному</h3>
+            <div class="comment-input">
+                <textarea class="comment-textarea" id="commentText" placeholder="Напишите причину отсутствия..."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeCommentModal()">Отмена</button>
+                <button class="modal-btn btn-ok" onclick="confirmComment()">ОК</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentUser = null;
+        let currentCell = null;
         
         const users = {
             '+375257820116': { password: '123456', name: 'Павел' },
@@ -251,28 +350,73 @@
                 }
                 
                 if (editable && !day.inactive) {
-                    cell.onclick = function() { toggleDay(this); };
+                    cell.onclick = function() { openCellModal(this); };
                 }
                 
                 container.appendChild(cell);
             });
         }
 
-        function toggleDay(cell) {
-            const dayNum = cell.dataset.day;
-            const dayName = cell.dataset.weekday;
-            
-            if (cell.classList.contains('work')) {
-                cell.classList.remove('work');
-                cell.classList.add('off');
-                cell.innerHTML = `${dayNum}<br>ВЫХ`;
-            } else if (cell.classList.contains('off')) {
-                cell.classList.remove('off');
-                cell.innerHTML = `${dayNum}<br>${dayName}`;
+        function openCellModal(cell) {
+            currentCell = cell;
+            if (cell.classList.contains('work') || cell.classList.contains('off')) {
+                // Если уже выбрано время или выходной - показываем отмену
+                if (cell.classList.contains('work')) {
+                    showTimeModal();
+                } else {
+                    showCommentModal();
+                }
             } else {
-                cell.classList.add('work');
-                cell.innerHTML = `${dayNum}<br>10-20`;
+                // Нейтральное состояние - показываем выбор
+                showChoiceModal();
             }
+        }
+
+        function showChoiceModal() {
+            if (confirm('🕒 Выбрать время работы?\n\nНажмите "Отмена" для выходного')) {
+                showTimeModal();
+            } else {
+                showCommentModal();
+            }
+        }
+
+        function showTimeModal() {
+            document.getElementById('timeModal').classList.add('active');
+        }
+
+        function showCommentModal() {
+            document.getElementById('commentModal').classList.add('active');
+        }
+
+        function closeTimeModal() {
+            document.getElementById('timeModal').classList.remove('active');
+        }
+
+        function closeCommentModal() {
+            document.getElementById('commentModal').classList.remove('active');
+        }
+
+        function confirmTime() {
+            const startHour = document.getElementById('startHour').value;
+            const startMin = document.getElementById('startMin').value.padStart(2, '0');
+            const endHour = document.getElementById('endHour').value;
+            const endMin = document.getElementById('endMin').value.padStart(2, '0');
+            
+            const timeStr = `${startHour}:${startMin}-${endHour}:${endMin}`;
+            currentCell.classList.remove('off');
+            currentCell.classList.add('work');
+            currentCell.innerHTML = `${currentCell.dataset.day}<br>${timeStr}`;
+            
+            closeTimeModal();
+        }
+
+        function confirmComment() {
+            const comment = document.getElementById('commentText').value || 'ВЫХ';
+            currentCell.classList.remove('work');
+            currentCell.classList.add('off');
+            currentCell.innerHTML = `${currentCell.dataset.day}<br>${comment.substring(0, 8)}...`;
+            
+            closeCommentModal();
         }
 
         function goToMenu() {
@@ -307,6 +451,16 @@
             } else {
                 logout();
             }
+        });
+
+        // Закрытие модалок по клику на фон
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    if (this.id === 'timeModal') closeTimeModal();
+                    if (this.id === 'commentModal') closeCommentModal();
+                }
+            });
         });
 
         document.addEventListener('keypress', function(e) {
