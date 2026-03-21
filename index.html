@@ -115,10 +115,6 @@
             color: #dc3545; 
             margin: 0 0 15px 0; 
             text-align: center;
-            position: sticky;
-            top: 0;
-            background: white;
-            padding-bottom: 10px;
         }
         .time-group { display: flex; gap: 8px; margin: 10px 0; align-items: center; }
         .time-input { 
@@ -269,6 +265,7 @@
     <script>
         let currentUser = null;
         let currentDayNum = null;
+        let isOffMode = false;
         
         const users = {
             '+375257820116': { password: '123456', name: 'Павел' },
@@ -378,6 +375,7 @@
         function openDayOverlay(cell) {
             currentDayNum = cell.dataset.day;
             const weekday = cell.dataset.weekday;
+            isOffMode = false;
             
             document.getElementById('overlayContent').innerHTML = `
                 <span class="close-icon" onclick="closeDayOverlay()">×</span>
@@ -399,7 +397,7 @@
                 </div>
                 <div class="overlay-buttons">
                     <button class="overlay-btn btn-cancel" onclick="closeDayOverlay()">Отмена</button>
-                    <button class="overlay-btn btn-ok" onclick="confirmWork()">ОК</button>
+                    <button class="overlay-btn btn-ok" id="confirmBtn" onclick="confirmSelection()">ОК</button>
                 </div>
             `;
             
@@ -407,38 +405,40 @@
         }
 
         function switchToOff() {
+            isOffMode = true;
             const commentSection = document.getElementById('commentSection');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
             commentSection.classList.add('active');
-            document.querySelector('.overlay-buttons').style.display = 'none';
             document.querySelector('.off-btn').style.display = 'none';
+            confirmBtn.textContent = 'Сохранить выходной';
         }
 
-        function confirmWork() {
+        function confirmSelection() {
             const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
-            const sh = document.getElementById('startHour').value.padStart(2, '0');
-            const sm = document.getElementById('startMin').value.padStart(2, '0');
-            const eh = document.getElementById('endHour').value.padStart(2, '0');
-            const em = document.getElementById('endMin').value.padStart(2, '0');
             
-            cell.classList.remove('off');
-            cell.classList.add('work');
-            cell.innerHTML = `${currentDayNum}<br>${sh}:${sm}-${eh}:${em}`;
-            closeDayOverlay();
-        }
-
-        function confirmOff() {
-            const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
-            const comment = document.getElementById('commentText').value || 'ВЫХ';
+            if (isOffMode) {
+                const comment = document.getElementById('commentText').value || 'ВЫХ';
+                cell.classList.remove('work');
+                cell.classList.add('off');
+                cell.innerHTML = `${currentDayNum}<br>${comment.substring(0, 8)}...`;
+            } else {
+                const sh = document.getElementById('startHour').value.padStart(2, '0');
+                const sm = document.getElementById('startMin').value.padStart(2, '0');
+                const eh = document.getElementById('endHour').value.padStart(2, '0');
+                const em = document.getElementById('endMin').value.padStart(2, '0');
+                
+                cell.classList.remove('off');
+                cell.classList.add('work');
+                cell.innerHTML = `${currentDayNum}<br>${sh}:${sm}-${eh}:${em}`;
+            }
             
-            cell.classList.remove('work');
-            cell.classList.add('off');
-            cell.innerHTML = `${currentDayNum}<br>${comment.substring(0, 8)}...`;
             closeDayOverlay();
         }
 
         function closeDayOverlay() {
             document.getElementById('dayOverlay').classList.remove('active');
-            document.getElementById('commentSection')?.classList.remove('active');
+            isOffMode = false;
         }
 
         function goToMenu() {
