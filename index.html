@@ -46,8 +46,7 @@
         }
         .day-cell.off::before { content: "❌🍔"; }
         #grid { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .print-btn { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; }
-        @media print { body { background: white; margin: 0; } .container { max-width: none; } }
+        @media print { body { background: white; margin: 0; } .container { max-width: none; } #login { display: none !important; } }
     </style>
 </head>
 <body>
@@ -56,15 +55,16 @@
         <div class="login-form" id="login">
             <h2>График АПРЕЛЬ 2026</h2>
             <input type="text" id="phone" placeholder="Имя сотрудника">
+            <input type="password" id="pass" placeholder="Пароль"> <!-- ✅ ПАРОЛЬ ВЕРНУТ -->
             <button onclick="enter()">🚀 Открыть график</button>
         </div>
         <div id="grid" style="display:none;">
-            <h2>📅 АПРЕЛЬ 2026 — 1-е СРЕДА</h2>
+            <h2>📅 АПРЕЛЬ 2026 — 1-е число СРЕДА</h2>
             <div class="month-grid" id="days">
-                <!-- НЕАКТИВНЫЕ 30-31 марта -->
+                <!-- НЕАКТИВНЫЕ дни марта -->
                 <div class="day-cell inactive" data-day="30" data-weekday="Пн">30.03<br>Пн</div>
                 <div class="day-cell inactive" data-day="31" data-weekday="Вт">31.03<br>Вт</div>
-                <!-- АПРЕЛЬ -->
+                <!-- ВЕСЬ АПРЕЛЬ (30 дней) -->
                 <div class="day-cell" data-day="1" data-weekday="Ср">1 Ср</div>
                 <div class="day-cell" data-day="2" data-weekday="Чт">2 Чт</div>
                 <div class="day-cell" data-day="3" data-weekday="Пт">3 Пт</div>
@@ -72,8 +72,30 @@
                 <div class="day-cell" data-day="5" data-weekday="Вс">5 Вс</div>
                 <div class="day-cell" data-day="6" data-weekday="Пн">6 Пн</div>
                 <div class="day-cell" data-day="7" data-weekday="Вт">7 Вт</div>
+                <div class="day-cell" data-day="8" data-weekday="Ср">8 Ср</div>
+                <div class="day-cell" data-day="9" data-weekday="Чт">9 Чт</div>
+                <div class="day-cell" data-day="10" data-weekday="Пт">10 Пт</div>
+                <div class="day-cell" data-day="11" data-weekday="Сб">11 Сб</div>
+                <div class="day-cell" data-day="12" data-weekday="Вс">12 Вс</div>
+                <div class="day-cell" data-day="13" data-weekday="Пн">13 Пн</div>
+                <div class="day-cell" data-day="14" data-weekday="Вт">14 Вт</div>
+                <div class="day-cell" data-day="15" data-weekday="Ср">15 Ср</div>
+                <div class="day-cell" data-day="16" data-weekday="Чт">16 Чт</div>
+                <div class="day-cell" data-day="17" data-weekday="Пт">17 Пт</div>
+                <div class="day-cell" data-day="18" data-weekday="Сб">18 Сб</div>
+                <div class="day-cell" data-day="19" data-weekday="Вс">19 Вс</div>
+                <div class="day-cell" data-day="20" data-weekday="Пн">20 Пн</div>
+                <div class="day-cell" data-day="21" data-weekday="Вт">21 Вт</div>
+                <div class="day-cell" data-day="22" data-weekday="Ср">22 Ср</div>
+                <div class="day-cell" data-day="23" data-weekday="Чт">23 Чт</div>
+                <div class="day-cell" data-day="24" data-weekday="Пт">24 Пт</div>
+                <div class="day-cell" data-day="25" data-weekday="Сб">25 Сб</div>
+                <div class="day-cell" data-day="26" data-weekday="Вс">26 Вс</div>
+                <div class="day-cell" data-day="27" data-weekday="Пн">27 Пн</div>
+                <div class="day-cell" data-day="28" data-weekday="Вт">28 Вт</div>
+                <div class="day-cell" data-day="29" data-weekday="Ср">29 Ср</div>
+                <div class="day-cell" data-day="30" data-weekday="Чт">30 Чт</div>
             </div>
-            <button class="print-btn" onclick="printGrid()">🖨️ Печать А4</button>
         </div>
     </div>
     <script>
@@ -103,6 +125,7 @@
             });
         });
 
+        // Печать Ctrl+P (кнопка убрана)
         function printGrid() {
             window.print();
         }
