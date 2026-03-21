@@ -135,13 +135,13 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            margin: 15px 0;
+            margin: 10px 0;
             width: 100%;
             font-weight: bold;
         }
         .clear-btn {
-            background: #ffc107 !important;
-            color: #212529 !important;
+            background: #6c757d !important;
+            color: white !important;
             padding: 12px;
             font-size: 14px;
             border: none;
@@ -405,7 +405,7 @@
                     <input type="number" class="time-input" id="endMin" min="0" max="59" value="0" step="15">
                 </div>
                 <button class="off-btn" onclick="switchToOff()">❌ Выходной</button>
-                <button class="clear-btn" onclick="switchToNeutral()">🔄 Очистить</button>
+                <button class="clear-btn" onclick="clearCell()">🗑️ Очистить</button>
                 <div class="comment-section" id="commentSection">
                     <textarea class="comment-input" id="commentText" placeholder="Причина отсутствия..."></textarea>
                 </div>
@@ -428,14 +428,11 @@
             confirmBtn.textContent = 'Сохранить выходной';
         }
 
-        function switchToNeutral() {
-            isOffMode = false;
-            const commentSection = document.getElementById('commentSection');
-            const confirmBtn = document.getElementById('confirmBtn');
-            
-            commentSection.classList.remove('active');
-            document.querySelector('.off-btn').style.display = 'block';
-            confirmBtn.textContent = 'ОК';
+        function clearCell() {
+            const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
+            cell.classList.remove('work', 'off');
+            cell.innerHTML = `${currentDayNum}<br>${currentWeekday}`;
+            closeDayOverlay();
         }
 
         function confirmSelection() {
@@ -457,13 +454,6 @@
                 cell.innerHTML = `${currentDayNum}<br>${sh}:${sm}-${eh}:${em}`;
             }
             
-            closeDayOverlay();
-        }
-
-        function clearSelection() {
-            const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
-            cell.classList.remove('work', 'off');
-            cell.innerHTML = `${currentDayNum}<br>${currentWeekday}`;
             closeDayOverlay();
         }
 
