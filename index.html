@@ -49,18 +49,18 @@
         .month-grid { 
             display: grid; 
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px; 
+            gap: 8px; 
             margin: 15px 0; 
-            max-width: 650px;
+            max-width: 700px;
             justify-content: center;
         }
         .day-cell {
-            min-height: 85px; 
-            padding: 8px 4px;
+            min-height: 65px; 
+            padding: 6px 8px;
             border: 2px solid #dee2e6; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             text-align: center; 
-            font-size: 13px; 
+            font-size: 14px; 
             font-weight: bold; 
             display: flex; 
             flex-direction: column; 
@@ -68,7 +68,7 @@
             transition: all 0.2s; 
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
-        .day-cell::before { content: "🍔"; font-size: 20px; margin-bottom: 2px; }
+        .day-cell::before { content: "🍔"; font-size: 22px; margin-bottom: 2px; }
         .day-cell:hover:not(.inactive):not(.final-schedule) { transform: scale(1.02); box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
         .day-cell.work { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-color: #28a745; color: #155724; }
         .day-cell.work::before { content: "✅🍔"; }
@@ -82,7 +82,8 @@
         @media (max-width: 768px) {
             .main-container { flex-direction: column; }
             .sidebar { order: -1; margin-bottom: 20px; }
-            .day-cell { min-height: 70px; font-size: 12px; }
+            .day-cell { min-height: 55px; font-size: 13px; padding: 4px 6px; }
+            .month-grid { gap: 6px; max-width: 100%; }
         }
     </style>
 </head>
