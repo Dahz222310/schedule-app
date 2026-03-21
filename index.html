@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <title>🍔 ТутБургер Сморгонь - Апрель 2026</title>
     <style>
-        body { font-family: Arial; margin: 15px; background: #f8f9fa; }
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+        
+        body { font-family: Arial, sans-serif; margin: 15px; background: #f8f9fa; }
         .main-container {
             display: flex; 
             gap: 30px; 
@@ -22,20 +24,21 @@
             margin-top: 20px;
         }
         .sidebar h3 {
-            font-family: 'Georgia', serif;
-            font-size: 16px;
-            font-style: italic;
-            color: #856404;
-            margin: 0 0 25px 0;
-            line-height: 1.4;
+            font-family: 'Bangers', cursive; /* ✅ УЛИЧНЫЙ ГРАФФИТИ ШРИФТ */
+            font-size: 22px; /* ✅ КРУПНЕЕ */
+            font-weight: 400;
+            color: #dc3545;
+            margin: 0 0 30px 0;
+            line-height: 1.2;
             text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
         }
         .burger-logo {
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
             margin: 0 auto;
             display: block;
-            filter: drop-shadow(0 4px 12px rgba(220,53,69,0.3));
         }
         h1 { text-align: center; color: #dc3545; font-size: 24px; margin-bottom: 10px; }
         .screen { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -120,14 +123,28 @@
             <!-- ✅ БОКОВАЯ ПАНЕЛЬ СПРАВА -->
             <div class="sidebar">
                 <h3>"Создавая возможности, создавай настроение."</h3>
-                <svg class="burger-logo" viewBox="0 0 200 200" fill="none">
-                    ircle cx="100" cy="100" r="85" fill="#dc3545"/>
-                    <rect x="55" y="75" width="90" height="18" rx="9" fill="white"/>
-                    <rect x="55" y="102" width="90" height="18" rx="9" fill="white"/>
-                    <rect x="55" y="129" width="90" height="18" rx="9" fill="white"/>
-                    ircle cx="70" cy="90" r="8" fill="#ffc107"/>
-                    ircle cx="130" cy="90" r="8" fill="#ffc107"/>
-                    <path d="M65 140 Q100 155 135 140" stroke="white" stroke-width="4" fill="none"/>
+                <!-- ✅ РЕАЛЬНЫЙ SVG БУРГЕР -->
+                <svg class="burger-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Булочка верх -->
+                    <ellipse cx="100" cy="40" rx="75" ry="25" fill="#ffcc00"/>
+                    <!-- Сыр -->
+                    <rect x="45" y="60" width="110" height="12" rx="6" fill="#ff6b35"/>
+                    <!-- Котлета -->
+                    <rect x="50" y="78" width="100" height="15" rx="7" fill="#8b4513"/>
+                    <!-- Салат -->
+                    <rect x="48" y="98" width="104" height="8" rx="4" fill="#32cd32"/>
+                    <!-- Соус -->
+                    <rect x="52" y="110" width="96" height="6" rx="3" fill="#ff1493"/>
+                    <!-- Булочка низ -->
+                    <ellipse cx="100" cy="160" rx="75" ry="25" fill="#ffcc00"/>
+                    <!-- Тень -->
+                    <ellipse cx="100" cy="170" rx="70" ry="15" fill="#d4a017" opacity="0.6"/>
+                    <!-- Сессия -->
+                    <circle cx="70" cy="85" r="6" fill="#ffffff"/>
+                    <circle cx="130" cy="85" r="6" fill="#ffffff"/>
+                    <!-- Контур -->
+                    <ellipse cx="100" cy="40" rx="75" ry="25" fill="none" stroke="#e6b800" stroke-width="3"/>
+                    <ellipse cx="100" cy="160" rx="75" ry="25" fill="none" stroke="#e6b800" stroke-width="3"/>
                 </svg>
             </div>
         </div>
@@ -143,134 +160,4 @@
         };
 
         const aprilCalendar = [
-            {num: 30, weekday: 'Пн', inactive: true, month: '03'},
-            {num: 31, weekday: 'Вт', inactive: true, month: '03'},
-            {num: 1, weekday: 'Ср', inactive: false},
-            {num: 2, weekday: 'Чт', inactive: false},
-            {num: 3, weekday: 'Пт', inactive: false},
-            {num: 4, weekday: 'Сб', inactive: false},
-            {num: 5, weekday: 'Вс', inactive: false},
-            {num: 6, weekday: 'Пн', inactive: false},
-            {num: 7, weekday: 'Вт', inactive: false},
-            {num: 8, weekday: 'Ср', inactive: false},
-            {num: 9, weekday: 'Чт', inactive: false},
-            {num: 10, weekday: 'Пт', inactive: false},
-            {num: 11, weekday: 'Сб', inactive: false},
-            {num: 12, weekday: 'Вс', inactive: false},
-            {num: 13, weekday: 'Пн', inactive: false},
-            {num: 14, weekday: 'Вт', inactive: false},
-            {num: 15, weekday: 'Ср', inactive: false},
-            {num: 16, weekday: 'Чт', inactive: false},
-            {num: 17, weekday: 'Пт', inactive: false},
-            {num: 18, weekday: 'Сб', inactive: false},
-            {num: 19, weekday: 'Вс', inactive: false},
-            {num: 20, weekday: 'Пн', inactive: false},
-            {num: 21, weekday: 'Вт', inactive: false},
-            {num: 22, weekday: 'Ср', inactive: false},
-            {num: 23, weekday: 'Чт', inactive: false},
-            {num: 24, weekday: 'Пт', inactive: false},
-            {num: 25, weekday: 'Сб', inactive: false},
-            {num: 26, weekday: 'Вс', inactive: false},
-            {num: 27, weekday: 'Пн', inactive: false},
-            {num: 28, weekday: 'Вт', inactive: false},
-            {num: 29, weekday: 'Ср', inactive: false},
-            {num: 30, weekday: 'Чт', inactive: false}
-        ];
-
-        function login() {
-            const phone = document.getElementById('phone').value;
-            const pass = document.getElementById('pass').value;
-            
-            if (users[phone] && users[phone].password === pass) {
-                currentUser = users[phone];
-                hideAllScreens();
-                document.getElementById('menu').classList.add('active');
-                document.getElementById('welcome').textContent = `Добро пожаловать, ${currentUser.name}!`;
-            } else {
-                alert('❌ Неверный логин/пароль');
-                document.getElementById('phone').value = '';
-                document.getElementById('pass').value = '';
-            }
-        }
-
-        function showWishes() {
-            hideAllScreens();
-            document.getElementById('wishes').classList.add('active');
-            generateCalendarGrid('wishes-days', true);
-        }
-
-        function showFinalSchedule() {
-            hideAllScreens();
-            document.getElementById('final-schedule').classList.add('active');
-            generateCalendarGrid('final-days', false);
-        }
-
-        function generateCalendarGrid(containerId, editable) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            aprilCalendar.forEach((day, index) => {
-                const cell = document.createElement('div');
-                cell.className = day.inactive ? 'day-cell inactive' : 'day-cell';
-                cell.dataset.day = day.num;
-                cell.dataset.weekday = day.weekday;
-                
-                if (day.inactive) {
-                    cell.innerHTML = `${day.num}.${day.month}<br>${day.weekday}`;
-                } else if (!editable) {
-                    cell.classList.add('work');
-                    cell.innerHTML = `${day.num}<br>10-20`;
-                } else {
-                    cell.innerHTML = `${day.num}<br>${day.weekday}`;
-                }
-                
-                if (editable && !day.inactive) {
-                    cell.onclick = function() { toggleDay(this); };
-                }
-                
-                container.appendChild(cell);
-            });
-        }
-
-        function toggleDay(cell) {
-            const dayNum = cell.dataset.day;
-            const dayName = cell.dataset.weekday;
-            
-            if (cell.classList.contains('work')) {
-                cell.classList.remove('work');
-                cell.classList.add('off');
-                cell.innerHTML = `${dayNum}<br>ВЫХ`;
-            } else if (cell.classList.contains('off')) {
-                cell.classList.remove('off');
-                cell.innerHTML = `${dayNum}<br>${dayName}`;
-            } else {
-                cell.classList.add('work');
-                cell.innerHTML = `${dayNum}<br>10-20`;
-            }
-        }
-
-        function goToMenu() {
-            hideAllScreens();
-            document.getElementById('menu').classList.add('active');
-        }
-
-        function hideAllScreens() {
-            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-        }
-
-        function logout() {
-            currentUser = null;
-            hideAllScreens();
-            document.getElementById('login').classList.add('active');
-            document.getElementById('phone').value = '';
-            document.getElementById('pass').value = '';
-        }
-
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && document.getElementById('login').classList.contains('active')) {
-                login();
-            }
-        });
-    </script>
-</body>
-</html>
+            {num: 30,
