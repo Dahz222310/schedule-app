@@ -68,8 +68,6 @@
             transition: all 0.2s; 
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
         .day-cell::before { content: "🍔"; font-size: 22px; margin-bottom: 2px; }
         .day-cell:hover:not(.inactive):not(.final-schedule) { transform: scale(1.02); box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
@@ -82,78 +80,119 @@
         .final-schedule .day-cell { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; cursor: default; }
         .final-schedule .day-cell::before { content: "🎯"; }
 
-        /* ВСПЛЫВАЮЩЕЕ ОКНО В ЯЧЕЙКЕ */
-        .cell-overlay {
-            position: absolute;
+        /* ОКНО НА ПЕРЕДНЕМ ПЛАНЕ */
+        .day-overlay {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.95);
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
             display: none;
-            flex-direction: column;
-            padding: 10px;
-            z-index: 10;
+            justify-content: center;
+            align-items: center;
         }
-        .cell-overlay.active { display: flex; }
-        .overlay-title { font-size: 12px; font-weight: bold; color: #333; margin-bottom: 10px; text-align: center; }
-        .time-group { display: flex; gap: 5px; margin: 5px 0; }
-        .time-input { 
-            width: 35px; 
-            padding: 4px; 
-            border: 2px solid #007bff; 
-            border-radius: 4px; 
-            text-align: center; 
+        .day-overlay.active { display: flex; }
+        .overlay-content {
+            background: white;
+            width: 20vw;
+            min-width: 280px;
+            max-width: 350px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .overlay-title { 
             font-size: 16px; 
+            font-weight: bold; 
+            color: #dc3545; 
+            margin: 0 0 15px 0; 
+            text-align: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding-bottom: 10px;
+        }
+        .time-group { display: flex; gap: 8px; margin: 10px 0; align-items: center; }
+        .time-input { 
+            width: 50px; 
+            padding: 8px; 
+            border: 2px solid #007bff; 
+            border-radius: 6px; 
+            text-align: center; 
+            font-size: 18px; 
             font-weight: bold;
         }
-        .time-label { font-size: 12px; color: #666; align-self: center; }
+        .time-label { font-size: 14px; color: #666; font-weight: 500; }
         .off-btn {
             background: #dc3545 !important;
             color: white !important;
-            padding: 8px;
-            font-size: 12px;
+            padding: 12px;
+            font-size: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            margin: 15px 0;
             width: 100%;
+            font-weight: bold;
         }
         .comment-section {
             display: none;
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px solid #ddd;
+            border-top: 2px solid #eee;
         }
         .comment-section.active { display: block; }
         .comment-input {
             width: 100%; 
-            height: 60px; 
-            padding: 6px; 
+            height: 80px; 
+            padding: 10px; 
             border: 2px solid #dc3545; 
-            border-radius: 4px; 
-            font-size: 11px; 
-            resize: none;
+            border-radius: 6px; 
+            font-size: 13px; 
+            resize: vertical;
             box-sizing: border-box;
         }
-        .overlay-buttons { display: flex; gap: 5px; margin-top: 8px; }
+        .overlay-buttons { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
         .overlay-btn { 
             flex: 1;
-            padding: 6px 8px; 
+            padding: 10px 15px; 
             border: none; 
-            border-radius: 4px; 
-            font-size: 11px; 
+            border-radius: 6px; 
+            font-size: 14px; 
             cursor: pointer; 
+            font-weight: bold;
         }
         .btn-ok { background: #28a745; color: white; }
         .btn-cancel { background: #6c757d; color: white; }
+        .close-icon {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+        .close-icon:hover { color: #dc3545; }
 
-        @media print { body { background: white; margin: 0; } .sidebar { display: none; } .screen:not(.active) { display: none !important; } .cell-overlay { display: none !important; } }
+        @media print { body { background: white; margin: 0; } .sidebar { display: none; } .screen:not(.active) { display: none !important; } .day-overlay { display: none !important; } }
         @media (max-width: 768px) {
             .main-container { flex-direction: column; }
             .sidebar { order: -1; margin-bottom: 20px; }
             .day-cell { min-height: 55px; font-size: 13px; padding: 4px 6px; }
             .month-grid { gap: 6px; max-width: 100%; }
+            .overlay-content { width: 90vw; min-width: 0; margin: 20px; }
         }
     </style>
 </head>
@@ -220,8 +259,16 @@
         </div>
     </div>
 
+    <!-- ОКНО НА ПЕРЕДНЕМ ПЛАНЕ -->
+    <div id="dayOverlay" class="day-overlay">
+        <div class="overlay-content" id="overlayContent">
+            <!-- Контент динамически генерируется -->
+        </div>
+    </div>
+
     <script>
         let currentUser = null;
+        let currentDayNum = null;
         
         const users = {
             '+375257820116': { password: '123456', name: 'Павел' },
@@ -318,90 +365,80 @@
                     cell.innerHTML = `${day.num}<br>10-20`;
                 } else {
                     cell.innerHTML = `${day.num}<br>${day.weekday}`;
-                    // Добавляем всплывающее окно
-                    cell.innerHTML += `
-                        <div class="cell-overlay" data-cell="${day.num}">
-                            <div class="overlay-title">📝 Настройка дня ${day.num}</div>
-                            <div class="time-group">
-                                <input type="number" class="time-input" id="sh${day.num}" min="0" max="23" value="10" step="1">
-                                <span class="time-label">:</span>
-                                <input type="number" class="time-input" id="sm${day.num}" min="0" max="59" value="0" step="15">
-                            </div>
-                            <div class="time-group">
-                                <span class="time-label">до</span>
-                                <input type="number" class="time-input" id="eh${day.num}" min="0" max="23" value="20" step="1">
-                                <span class="time-label">:</span>
-                                <input type="number" class="time-input" id="em${day.num}" min="0" max="59" value="0" step="15">
-                            </div>
-                            <button class="off-btn" onclick="switchToOff(${day.num})">❌ Выходной</button>
-                            <div class="comment-section" id="comm${day.num}">
-                                <textarea class="comment-input" placeholder="Причина отсутствия..."></textarea>
-                            </div>
-                            <div class="overlay-buttons">
-                                <button class="overlay-btn btn-cancel" onclick="closeOverlay(${day.num})">Отмена</button>
-                                <button class="overlay-btn btn-ok" onclick="confirmWork(${day.num})">ОК</button>
-                            </div>
-                        </div>
-                    `;
                 }
                 
                 if (editable && !day.inactive) {
-                    cell.onclick = function(e) {
-                        if (e.target.closest('.cell-overlay')) return;
-                        toggleOverlay(cell);
-                    };
+                    cell.onclick = function() { openDayOverlay(this); };
                 }
                 
                 container.appendChild(cell);
             });
         }
 
-        function toggleOverlay(cell) {
-            const overlay = cell.querySelector('.cell-overlay');
-            const isActive = overlay.classList.contains('active');
+        function openDayOverlay(cell) {
+            currentDayNum = cell.dataset.day;
+            const weekday = cell.dataset.weekday;
             
-            document.querySelectorAll('.cell-overlay').forEach(ov => ov.classList.remove('active'));
-            if (!isActive) {
-                overlay.classList.add('active');
-            }
+            document.getElementById('overlayContent').innerHTML = `
+                <span class="close-icon" onclick="closeDayOverlay()">×</span>
+                <div class="overlay-title">📝 День ${currentDayNum} (${weekday})</div>
+                <div class="time-group">
+                    <input type="number" class="time-input" id="startHour" min="0" max="23" value="10" step="1">
+                    <span class="time-label">:</span>
+                    <input type="number" class="time-input" id="startMin" min="0" max="59" value="0" step="15">
+                </div>
+                <div class="time-group">
+                    <span class="time-label">до</span>
+                    <input type="number" class="time-input" id="endHour" min="0" max="23" value="20" step="1">
+                    <span class="time-label">:</span>
+                    <input type="number" class="time-input" id="endMin" min="0" max="59" value="0" step="15">
+                </div>
+                <button class="off-btn" onclick="switchToOff()">❌ Выходной</button>
+                <div class="comment-section" id="commentSection">
+                    <textarea class="comment-input" id="commentText" placeholder="Причина отсутствия..."></textarea>
+                </div>
+                <div class="overlay-buttons">
+                    <button class="overlay-btn btn-cancel" onclick="closeDayOverlay()">Отмена</button>
+                    <button class="overlay-btn btn-ok" onclick="confirmWork()">ОК</button>
+                </div>
+            `;
+            
+            document.getElementById('dayOverlay').classList.add('active');
         }
 
-        function switchToOff(dayNum) {
-            const overlay = document.querySelector(`.cell-overlay[data-cell="${dayNum}"]`);
-            const commentSection = document.getElementById(`comm${dayNum}`);
+        function switchToOff() {
+            const commentSection = document.getElementById('commentSection');
             commentSection.classList.add('active');
-            overlay.querySelector('.overlay-buttons').style.display = 'none';
-            overlay.querySelector('.off-btn').style.display = 'none';
+            document.querySelector('.overlay-buttons').style.display = 'none';
+            document.querySelector('.off-btn').style.display = 'none';
         }
 
-        function confirmWork(dayNum) {
-            const cell = document.querySelector(`.cell-overlay[data-cell="${dayNum}"]`).parentElement;
-            const sh = document.getElementById(`sh${dayNum}`).value.padStart(2, '0');
-            const sm = document.getElementById(`sm${dayNum}`).value.padStart(2, '0');
-            const eh = document.getElementById(`eh${dayNum}`).value.padStart(2, '0');
-            const em = document.getElementById(`em${dayNum}`).value.padStart(2, '0');
+        function confirmWork() {
+            const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
+            const sh = document.getElementById('startHour').value.padStart(2, '0');
+            const sm = document.getElementById('startMin').value.padStart(2, '0');
+            const eh = document.getElementById('endHour').value.padStart(2, '0');
+            const em = document.getElementById('endMin').value.padStart(2, '0');
             
             cell.classList.remove('off');
             cell.classList.add('work');
-            cell.innerHTML = `${dayNum}<br>${sh}:${sm}-${eh}:${em}`;
-            closeOverlay(dayNum);
+            cell.innerHTML = `${currentDayNum}<br>${sh}:${sm}-${eh}:${em}`;
+            closeDayOverlay();
         }
 
-        function confirmOff(dayNum) {
-            const cell = document.querySelector(`.cell-overlay[data-cell="${dayNum}"]`).parentElement;
-            const comment = document.getElementById(`comm${dayNum}`).querySelector('textarea').value || 'ВЫХ';
+        function confirmOff() {
+            const cell = document.querySelector(`[data-day="${currentDayNum}"]`);
+            const comment = document.getElementById('commentText').value || 'ВЫХ';
             
             cell.classList.remove('work');
             cell.classList.add('off');
-            cell.innerHTML = `${dayNum}<br>${comment.substring(0, 8)}...`;
+            cell.innerHTML = `${currentDayNum}<br>${comment.substring(0, 8)}...`;
+            closeDayOverlay();
         }
 
-        function closeOverlay(dayNum) {
-            const overlay = document.querySelector(`.cell-overlay[data-cell="${dayNum}"]`);
-            overlay.classList.remove('active');
-            overlay.querySelector('.comment-section').classList.remove('active');
-            overlay.querySelector('.overlay-buttons').style.display = 'flex';
-            overlay.querySelector('.off-btn').style.display = 'block';
+        function closeDayOverlay() {
+            document.getElementById('dayOverlay').classList.remove('active');
+            document.getElementById('commentSection')?.classList.remove('active');
         }
 
         function goToMenu() {
@@ -438,15 +475,19 @@
             }
         });
 
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.day-cell')) {
-                document.querySelectorAll('.cell-overlay').forEach(ov => ov.classList.remove('active'));
+        // Закрытие по клику на фон
+        document.getElementById('dayOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDayOverlay();
             }
         });
 
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && document.getElementById('login').classList.contains('active')) {
                 login();
+            }
+            if (e.key === 'Escape') {
+                closeDayOverlay();
             }
         });
     </script>
