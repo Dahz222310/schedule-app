@@ -15,20 +15,10 @@
         .back-btn { background: #6c757d !important; }
         .month-grid { 
             display: grid; 
-            grid-template-columns: repeat(7, 1fr); /* ✅ 7 ДНЕЙ В РЯД */
+            grid-template-columns: repeat(7, 1fr); /* 7 дней в ряд */
             gap: 4px; 
             margin: 15px 0; 
             max-width: 600px;
-        }
-        .weekday-header {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #495057;
-            font-size: 12px;
         }
         .day-cell {
             min-height: 60px; padding: 6px 2px;
@@ -46,13 +36,6 @@
         .day-cell.inactive::before { content: "🔒"; }
         .final-schedule .day-cell { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; cursor: default; }
         .final-schedule .day-cell::before { content: "🎯"; }
-        .header-pn { background: #007bff; color: white; }
-        .header-vt { background: #28a745; color: white; }
-        .header-sr { background: #ffc107; color: #212529; }
-        .header-ct { background: #17a2b8; color: white; }
-        .header-pt { background: #dc3545; color: white; }
-        .header-sb { background: #6f42c1; color: white; }
-        .header-vs { background: #fd7e14; color: white; }
         @media print { body { background: white; margin: 0; } .screen:not(.active) { display: none !important; } }
     </style>
 </head>
@@ -80,35 +63,17 @@
             <button class="menu-btn back-btn" onclick="logout()">← Выход</button>
         </div>
 
-        <!-- 3. ПОЖЕЛАНИЯ -->
+        <!-- 3. ПОЖЕЛАНИЯ (БЕЗ заголовков) -->
         <div id="wishes" class="screen">
             <h2>📝 Мои пожелания - Апрель</h2>
-            <div class="weekday-header">
-                <div class="header-pn">ПН</div>
-                <div class="header-vt">ВТ</div>
-                <div class="header-sr">СР</div>
-                <div class="header-ct">ЧТ</div>
-                <div class="header-pt">ПТ</div>
-                <div class="header-sb">СБ</div>
-                <div class="header-vs">ВС</div>
-            </div>
             <div class="month-grid" id="wishes-days"></div>
             <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
         </div>
 
-        <!-- 4. ФИНАЛЬНЫЙ ГРАФИК -->
+        <!-- 4. ФИНАЛЬНЫЙ ГРАФИК (БЕЗ заголовков) -->
         <div id="final-schedule" class="screen">
             <h2>📋 ФИНАЛЬНЫЙ ГРАФИК</h2>
             <p style="text-align: center; color: #856404; font-weight: bold; font-size: 14px;">Утверждено управляющим • Только просмотр</p>
-            <div class="weekday-header">
-                <div class="header-pn">ПН</div>
-                <div class="header-vt">ВТ</div>
-                <div class="header-sr">СР</div>
-                <div class="header-ct">ЧТ</div>
-                <div class="header-pt">ПТ</div>
-                <div class="header-sb">СБ</div>
-                <div class="header-vs">ВС</div>
-            </div>
             <div class="month-grid final-schedule" id="final-days"></div>
             <button class="menu-btn back-btn" onclick="goToMenu()">← В меню</button>
         </div>
@@ -123,9 +88,8 @@
             '+375292345678': { password: '123', name: 'Данилевич' }
         };
 
-        // ✅ АПРЕЛЬ: 30-31 марта + весь апрель (с понедельника по воскресенье)
         const aprilCalendar = [
-            // Первая неделя (30.03-5.04)
+            // Неделя 1
             {num: 30, weekday: 'Пн', inactive: true, month: '03'},
             {num: 31, weekday: 'Вт', inactive: true, month: '03'},
             {num: 1, weekday: 'Ср', inactive: false},
@@ -133,7 +97,7 @@
             {num: 3, weekday: 'Пт', inactive: false},
             {num: 4, weekday: 'Сб', inactive: false},
             {num: 5, weekday: 'Вс', inactive: false},
-            // Вторая неделя
+            // Неделя 2
             {num: 6, weekday: 'Пн', inactive: false},
             {num: 7, weekday: 'Вт', inactive: false},
             {num: 8, weekday: 'Ср', inactive: false},
@@ -141,7 +105,7 @@
             {num: 10, weekday: 'Пт', inactive: false},
             {num: 11, weekday: 'Сб', inactive: false},
             {num: 12, weekday: 'Вс', inactive: false},
-            // Третья неделя
+            // Неделя 3
             {num: 13, weekday: 'Пн', inactive: false},
             {num: 14, weekday: 'Вт', inactive: false},
             {num: 15, weekday: 'Ср', inactive: false},
@@ -149,7 +113,7 @@
             {num: 17, weekday: 'Пт', inactive: false},
             {num: 18, weekday: 'Сб', inactive: false},
             {num: 19, weekday: 'Вс', inactive: false},
-            // Четвертая неделя
+            // Неделя 4
             {num: 20, weekday: 'Пн', inactive: false},
             {num: 21, weekday: 'Вт', inactive: false},
             {num: 22, weekday: 'Ср', inactive: false},
@@ -157,7 +121,7 @@
             {num: 24, weekday: 'Пт', inactive: false},
             {num: 25, weekday: 'Сб', inactive: false},
             {num: 26, weekday: 'Вс', inactive: false},
-            // Пятая неделя
+            // Неделя 5
             {num: 27, weekday: 'Пн', inactive: false},
             {num: 28, weekday: 'Вт', inactive: false},
             {num: 29, weekday: 'Ср', inactive: false},
