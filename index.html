@@ -2,33 +2,39 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>🍔 ТутБургер Сморгонь - График</title>
+    <title>🍔 ТутБургер Сморгонь - График АПРЕЛЬ</title>
     <style>
-        body { font-family: Arial; margin: 20px; background: #f8f9fa; }
-        .container { max-width: 900px; margin: auto; }
-        h1 { text-align: center; color: #dc3545; font-size: 28px; }
+        body { font-family: Arial; margin: 15px; background: #f8f9fa; }
+        .container { max-width: 1000px; margin: auto; }
+        h1 { text-align: center; color: #dc3545; font-size: 24px; margin-bottom: 10px; }
         .login-form {
-            background: white; padding: 25px; border-radius: 12px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 400px; margin: 20px auto;
+            background: white; padding: 20px; border-radius: 10px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 350px; margin: 0 auto 20px;
         }
         .login-form input { 
-            width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; 
-            border-radius: 8px; font-size: 16px; box-sizing: border-box;
+            width: 100%; padding: 10px; margin: 8px 0; border: 2px solid #ddd; 
+            border-radius: 6px; font-size: 14px; box-sizing: border-box;
         }
         .login-form button { 
-            width: 100%; padding: 14px; background: #dc3545; color: white; 
-            border: none; border-radius: 8px; font-size: 18px; cursor: pointer;
+            width: 100%; padding: 12px; background: #dc3545; color: white; 
+            border: none; border-radius: 6px; font-size: 16px; cursor: pointer;
         }
-        .month-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+        .month-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
         .day-cell {
-            flex: 1 1 calc(14.28% - 10px); min-height: 110px; padding: 12px 6px;
-            border: 2px solid #dee2e6; border-radius: 10px; text-align: center;
-            cursor: pointer; font-size: 14px; font-weight: bold;
+            flex: 1 1 calc(14.28% - 8px);
+            min-height: 70px; padding: 8px 4px;
+            border: 2px solid #dee2e6; border-radius: 8px; 
+            text-align: center; cursor: pointer; font-size: 12px; font-weight: bold;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            position: relative; transition: all 0.3s;
+            position: relative; transition: all 0.2s;
+            display: flex; flex-direction: column; justify-content: center;
         }
-        .day-cell:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-        .day-cell::before { content: "🍔"; font-size: 28px; display: block; margin: 5px 0; }
+        .day-cell.inactive {
+            background: #e9ecef; border-color: #adb5bd; cursor: not-allowed; opacity: 0.5;
+        }
+        .day-cell.inactive::before { content: "🔒"; }
+        .day-cell:hover:not(.inactive) { transform: scale(1.03); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .day-cell::before { content: "🍔"; font-size: 20px; margin-bottom: 2px; }
         .day-cell.work { 
             background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); 
             border-color: #28a745; color: #155724; 
@@ -39,33 +45,35 @@
             border-color: #dc3545; color: #721c24; 
         }
         .day-cell.off::before { content: "❌🍔"; }
-        #grid { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        @media print { body { background: white; } .container { max-width: none; } }
+        #grid { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .print-btn { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        @media print { body { background: white; margin: 0; } .container { max-width: none; } }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🍔 ТутБургер Сморгонь</h1>
         <div class="login-form" id="login">
-            <h2>Вход в график</h2>
-            <input type="text" id="phone" placeholder="Телефон">
-            <input type="password" id="pass" placeholder="Пароль">
-            <button onclick="enter()">🚀 Войти</button>
+            <h2>График АПРЕЛЬ 2026</h2>
+            <input type="text" id="phone" placeholder="Имя сотрудника">
+            <button onclick="enter()">🚀 Открыть график</button>
         </div>
         <div id="grid" style="display:none;">
-            <h2>📅 МАРТ 2026 (23-31) - КЛИКАЙТЕ ПО ДНЯМ</h2>
+            <h2>📅 АПРЕЛЬ 2026 — 1-е СРЕДА</h2>
             <div class="month-grid" id="days">
-                <div class="day-cell" data-day="23">23 Пн</div>
-                <div class="day-cell" data-day="24">24 Вт</div>
-                <div class="day-cell" data-day="25">25 Ср</div>
-                <div class="day-cell" data-day="26">26 Чт</div>
-                <div class="day-cell" data-day="27">27 Пт</div>
-                <div class="day-cell" data-day="28">28 Сб</div>
-                <div class="day-cell" data-day="29">29 Вс</div>
-                <div class="day-cell" data-day="30">30 Пн</div>
-                <div class="day-cell" data-day="31">31 Вт</div>
+                <!-- НЕАКТИВНЫЕ 30-31 марта -->
+                <div class="day-cell inactive" data-day="30" data-weekday="Пн">30.03<br>Пн</div>
+                <div class="day-cell inactive" data-day="31" data-weekday="Вт">31.03<br>Вт</div>
+                <!-- АПРЕЛЬ -->
+                <div class="day-cell" data-day="1" data-weekday="Ср">1 Ср</div>
+                <div class="day-cell" data-day="2" data-weekday="Чт">2 Чт</div>
+                <div class="day-cell" data-day="3" data-weekday="Пт">3 Пт</div>
+                <div class="day-cell" data-day="4" data-weekday="Сб">4 Сб</div>
+                <div class="day-cell" data-day="5" data-weekday="Вс">5 Вс</div>
+                <div class="day-cell" data-day="6" data-weekday="Пн">6 Пн</div>
+                <div class="day-cell" data-day="7" data-weekday="Вт">7 Вт</div>
             </div>
-            <button onclick="printGrid()" style="width:100%; padding:15px; background:#007bff; color:white; border:none; border-radius:8px; font-size:18px; margin-top:20px; cursor:pointer;">🖨️ Печать А4</button>
+            <button class="print-btn" onclick="printGrid()">🖨️ Печать А4</button>
         </div>
     </div>
     <script>
@@ -74,24 +82,20 @@
             document.getElementById('grid').style.display = 'block';
         }
 
-        // ✅ ИСПРАВЛЕННЫЙ обработчик кликов
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.day-cell').forEach(function(cell) {
+            document.querySelectorAll('.day-cell:not(.inactive)').forEach(function(cell) {
                 cell.addEventListener('click', function() {
                     const dayNum = this.dataset.day;
-                    const dayName = this.textContent.split(' ')[1];
+                    const dayName = this.dataset.weekday;
                     
                     if (this.classList.contains('work')) {
-                        // Рабочий → Выходной
                         this.classList.remove('work');
                         this.classList.add('off');
                         this.innerHTML = dayNum + '<br>ВЫХ';
                     } else if (this.classList.contains('off')) {
-                        // Выходной → Пустой
                         this.classList.remove('off');
                         this.innerHTML = dayNum + ' ' + dayName;
                     } else {
-                        // Пустой → Рабочий
                         this.classList.add('work');
                         this.innerHTML = dayNum + '<br>10-20';
                     }
