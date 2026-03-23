@@ -1,277 +1,395 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <title>Просмотр пожеланий (менеджер)</title>
+    <meta charset="UTF-8">
+    <title>🍔 ТутБургер Сморгонь - МЕНЕДЖЕР АПРЕЛЬ 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
-        .form h2 { margin-top: 0; }
-        input, button { margin: 5px 0; padding: 8px; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        body { font-family: Arial, sans-serif; margin: 15px; background: #f8f9fa; }
+        .main-container {
+            display: flex; 
+            gap: 30px; 
+            max-width: 1400px; 
+            margin: auto;
         }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
+        .content { flex: 1; }
+        .sidebar {
+            flex: 0 0 280px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            height: fit-content;
+            margin-top: 20px;
         }
-        th {
-            background-color: #f0f0f0;
-        }
-        .button-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .sidebar h3 {
+            font-family: 'Bangers', cursive;
+            font-size: 22px;
+            font-weight: 400;
+            color: #dc3545;
+            margin: 0 0 30px 0;
+            line-height: 1.2;
             text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
+        }
+        .burger-logo {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto;
+            display: block;
+        }
+        h1 { text-align: center; color: #dc3545; font-size: 28px; margin-bottom: 20px; }
+        .screen { display: none; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .screen.active { display: block; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
+        .tab-btn { 
+            padding: 15px 25px; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .tab-btn.active { background: #dc3545; color: white; box-shadow: 0 4px 15px rgba(220,53,69,0.4); }
+        .tab-btn:not(.active) { background: #e9ecef; color: #495057; }
+        
+        .month-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px; 
+            margin: 20px 0; 
+            max-width: 900px;
+            justify-content: center;
+        }
+        .day-cell {
+            min-height: 75px; 
+            padding: 10px;
+            border: 3px solid #dee2e6; 
+            border-radius: 12px; 
+            text-align: center; 
+            font-size: 15px; 
+            font-weight: bold; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            transition: all 0.3s; 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .day-cell::before { content: "🍔"; font-size: 24px; margin-bottom: 5px; }
+        .day-cell:hover:not(.inactive) { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        .day-cell.work { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-color: #28a745; color: #155724; }
+        .day-cell.work::before { content: "✅🍔"; }
+        .day-cell.off { background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%); border-color: #dc3545; color: #721c24; }
+        .day-cell.off::before { content: "❌🍔"; }
+        .day-cell.pref-work { background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%); border-color: #007bff; }
+        .day-cell.pref-work::before { content: "⭐🍔"; }
+        .day-cell.pref-off { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-color: #ffc107; }
+        .day-cell.pref-off::before { content: "🌟🍔"; }
+        .day-cell.inactive { background: #e9ecef; border-color: #adb5bd; cursor: not-allowed; opacity: 0.6; }
+        .day-cell.inactive::before { content: "🔒"; }
+        
+        .employee-list { font-size: 12px; margin-top: 8px; max-height: 120px; overflow-y: auto; }
+        .employee-item { background: rgba(255,255,255,0.9); margin: 3px 0; padding: 6px; border-radius: 6px; border-left: 4px solid #28a745; }
+        .employee-pref { border-left-color: #007bff !important; }
+        
+        .stats { display: flex; gap: 20px; margin: 20px 0; }
+        .stat-card { 
+            flex: 1; padding: 20px; background: linear-gradient(135deg, #007bff, #0056b3); 
+            color: white; border-radius: 12px; text-align: center; 
+        }
+        .stat-number { font-size: 32px; font-weight: bold; }
+        
+        .assign-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: center;
+        }
+        .assign-modal.active { display: flex; }
+        .modal-content { 
+            background: white; width: 90%; max-width: 450px; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4); animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .time-group { display: flex; gap: 12px; margin: 20px 0; align-items: center; justify-content: center; }
+        .time-input { width: 65px; padding: 12px; border: 3px solid #007bff; border-radius: 8px; text-align: center; font-size: 20px; font-weight: bold; }
+        .employee-select { width: 100%; padding: 12px; border: 3px solid #28a745; border-radius: 8px; font-size: 16px; }
+        .btn { padding: 14px 24px; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: bold; margin: 5px; transition: all 0.3s; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 2px solid #dee2e6; padding: 15px; text-align: left; }
+        th { background: linear-gradient(135deg, #dc3545, #c82333); color: white; font-weight: bold; }
+        
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar { order: -1; margin-bottom: 20px; }
+            .month-grid { gap: 8px; }
+            .day-cell { min-height: 65px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Просмотр пожеланий (менеджер)</h1>
-
-        <div class="form">
-            <h2>Все временные пожелания сотрудников</h2>
-            <div class="button-container">
-                <button onclick="showAllPreferences()">Показать все пожелания</button>
-                <button onclick="clearAllPreferences()">Очистить все пожелания</button>
+    <h1>🍔 ТутБургер Сморгонь - МЕНЕДЖЕР АПРЕЛЬ 2026</h1>
+    
+    <div class="main-container">
+        <div class="content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('preferences')">📋 Пожелания сотрудников</button>
+                <button class="tab-btn" onclick="showTab('schedule')">📅 Назначение графика</button>
             </div>
-            <table id="manager_table">
-                <thead>
-                    <tr>
-                        <th>Сотрудник</th>
-                        <th>Пожелания (дни)</th>
-                    </tr>
-                </thead>
-                <tbody id="manager_view"></tbody>
-            </table>
+
+            <!-- ПОЖЕЛАНИЯ -->
+            <div id="preferences" class="screen active">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPrefs">0</div>
+                        <div>пожеланий</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEmployees">0</div>
+                        <div>сотрудников</div>
+                    </div>
+                </div>
+                <table id="manager_table">
+                    <thead>
+                        <tr>
+                            <th>Сотрудник</th>
+                            <th>Могу работать</th>
+                            <th>Выходной</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manager_view"></tbody>
+                </table>
+            </div>
+
+            <!-- ГРАФИК -->
+            <div id="schedule" class="screen">
+                <div style="text-align: center; color: #856404; font-weight: bold; margin-bottom: 25px; font-size: 18px;">
+                    Назначайте смены с учетом пожеланий сотрудников
+                </div>
+                <div class="month-grid" id="manager-schedule"></div>
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="btn btn-success" onclick="publishSchedule()">✅ Опубликовать график</button>
+                    <button class="btn btn-danger" onclick="resetSchedule()">🔄 Сбросить график</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- БОКОВОЙ БЛОК -->
+        <div class="sidebar">
+            <h3>"Создавая возможности, создавай настроение."</h3>
+            <svg class="burger-logo" viewBox="0 0 200 200">
+                <ellipse cx="100" cy="40" rx="75" ry="25" fill="#ffcc00"/>
+                <rect x="45" y="60" width="110" height="12" rx="6" fill="#ff6b35"/>
+                <rect x="50" y="78" width="100" height="15" rx="7" fill="#8b4513"/>
+                <rect x="48" y="98" width="104" height="8" rx="4" fill="#32cd32"/>
+                <rect x="52" y="110" width="96" height="6" rx="3" fill="#ff1493"/>
+                <ellipse cx="100" cy="160" rx="75" ry="25" fill="#ffcc00"/>
+                <circle cx="70" cy="85" r="6" fill="#ffffff"/>
+                <circle cx="130" cy="85" r="6" fill="#ffffff"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО -->
+    <div id="assignModal" class="assign-modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Назначить смену</h3>
+            <div class="time-group">
+                <input type="number" class="time-input" id="startHour" min="0" max="23" value="10">
+                <span>:</span>
+                <input type="number" class="time-input" id="startMin" min="0" max="59" value="0">
+                <span>до</span>
+                <input type="number" class="time-input" id="endHour" min="0" max="23" value="20">
+                <span>:</span>
+                <input type="number" class="time-input" id="endMin" min="0" max="59" value="0">
+            </div>
+            <select id="employeeSelect" class="employee-select">
+                <option value="">Выберите сотрудника</option>
+            </select>
+            <div style="margin-top: 25px; text-align: center;">
+                <button class="btn btn-success" onclick="saveAssignment()">Сохранить смену</button>
+                <button class="btn btn-danger" onclick="closeModal()">Отмена</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const month = 1; // февраль
+        const MONTH = 4;
+        const users = {
+            '+375257820116': { name: 'Павел', phone: '+375257820116' },
+            '+375291234567': { name: 'Галабурда', phone: '+375291234567' },
+            '+375292345678': { name: 'Данилевич', phone: '+375292345678' }
+        };
+
+        const aprilCalendar = [
+            {num: 30, weekday: 'Пн', inactive: true, month: '03'},
+            {num: 31, weekday: 'Вт', inactive: true, month: '03'},
+            {num: 1, weekday: 'Ср'}, {num: 2, weekday: 'Чт'}, {num: 3, weekday: 'Пт'},
+            {num: 4, weekday: 'Сб'}, {num: 5, weekday: 'Вс'}, {num: 6, weekday: 'Пн'},
+            {num: 7, weekday: 'Вт'}, {num: 8, weekday: 'Ср'}, {num: 9, weekday: 'Чт'},
+            {num: 10, weekday: 'Пт'}, {num: 11, weekday: 'Сб'}, {num: 12, weekday: 'Вс'},
+            {num: 13, weekday: 'Пн'}, {num: 14, weekday: 'Вт'}, {num: 15, weekday: 'Ср'},
+            {num: 16, weekday: 'Чт'}, {num: 17, weekday: 'Пт'}, {num: 18, weekday: 'Сб'},
+            {num: 19, weekday: 'Вс'}, {num: 20, weekday: 'Пн'}, {num: 21, weekday: 'Вт'},
+            {num: 22, weekday: 'Ср'}, {num: 23, weekday: 'Чт'}, {num: 24, weekday: 'Пт'},
+            {num: 25, weekday: 'Сб'}, {num: 26, weekday: 'Вс'}, {num: 27, weekday: 'Пн'},
+            {num: 28, weekday: 'Вт'}, {num: 29, weekday: 'Ср'}, {num: 30, weekday: 'Чт'},
+            {num: 1, weekday: 'Пт', inactive: true, month: '05'}
+        ];
+
+        function showTab(tabName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            if (tabName === 'preferences') showAllPreferences();
+            if (tabName === 'schedule') generateManagerSchedule();
+        }
 
         function showAllPreferences() {
-            const managerView = document.getElementById("manager_view");
-            managerView.innerHTML = "";
-
+            const tbody = document.getElementById('manager_view');
+            tbody.innerHTML = '';
             const keys = Object.keys(localStorage);
-            let found = false;
+            let totalPrefs = 0;
 
-            keys.forEach(key => {
-                if (key.startsWith(`schedule_prefs_${month}_`)) {
-                    const savedPrefs = localStorage.getItem(key);
-                    const prefs = JSON.parse(savedPrefs);
-
-                    const row = document.createElement("tr");
-
-                    const nameCell = document.createElement("td");
-                    nameCell.textContent = prefs.name;
-
-                    const daysCell = document.createElement("td");
-                    daysCell.textContent = prefs.workDays.length > 0 ? prefs.workDays.join(", ") : "Нет пожеланий";
-
-                    row.appendChild(nameCell);
-                    row.appendChild(daysCell);
-                    managerView.appendChild(row);
-
-                    found = true;
-                }
+            Object.values(users).forEach(user => {
+                const prefKey = `schedule_prefs_${MONTH}_${user.phone}`;
+                const prefs = JSON.parse(localStorage.getItem(prefKey) || '{}');
+                
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td'); nameCell.textContent = user.name;
+                const workCell = document.createElement('td'); 
+                workCell.textContent = prefs.workDays?.length ? prefs.workDays.join(', ') : '-';
+                const offCell = document.createElement('td');
+                offCell.textContent = prefs.offDays?.length ? prefs.offDays.join(', ') : '-';
+                
+                row.appendChild(nameCell); row.appendChild(workCell); row.appendChild(offCell);
+                tbody.appendChild(row);
+                totalPrefs += (prefs.workDays?.length || 0) + (prefs.offDays?.length || 0);
             });
 
-            if (!found) {
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.colSpan = 2;
-                cell.textContent = "Пока нет пожеланий.";
-                row.appendChild(cell);
-                managerView.appendChild(row);
-            }
+            document.getElementById('totalPrefs').textContent = totalPrefs;
+            document.getElementById('totalEmployees').textContent = Object.keys(users).length;
         }
 
-        function clearAllPreferences() {
-            if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
-                const keys = Object.keys(localStorage);
-
-                keys.forEach(key => {
-                    if (key.startsWith(`schedule_prefs_${month}_`)) {
-                        localStorage.removeItem(key);
-                    }
-                });
-
-                document.getElementById("manager_view").innerHTML = "";
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.colSpan = 2;
-                cell.textContent = "Все пожелания очищены.";
-                row.appendChild(cell);
-                document.getElementById("manager_view").appendChild(row);
-            }
-        }
-
-        window.onload = () => {
-            showAllPreferences();
-        };
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8" />
-    <title>Просмотр пожеланий (менеджер)</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .form { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
-        .form h2 { margin-top: 0; }
-        input, button { margin: 5px 0; padding: 8px; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f0f0f0;
-        }
-        .button-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Просмотр пожеланий (менеджер)</h1>
-
-        <div class="form">
-            <h2>Все временные пожелания сотрудников</h2>
-            <div class="button-container">
-                <button onclick="showAllPreferences()">Показать все пожелания</button>
-                <button onclick="clearAllPreferences()">Очистить все пожелания</button>
-            </div>
-            <table id="manager_table">
-                <thead>
-                    <tr>
-                        <th>Сотрудник</th>
-                        <th>Пожелания (дни)</th>
-                    </tr>
-                </thead>
-                <tbody id="manager_view"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        const month = 1; // февраль
-
-        function showAllPreferences() {
-            const managerView = document.getElementById("manager_view");
-            managerView.innerHTML = "";
-
-            const keys = Object.keys(localStorage);
-            let found = false;
-
-            keys.forEach(key => {
-                if (key.startsWith(`schedule_prefs_${month}_`)) {
-                    const savedPrefs = localStorage.getItem(key);
-                    const prefs = JSON.parse(savedPrefs);
-
-                    const row = document.createElement("tr");
-
-                    const nameCell = document.createElement("td");
-                    nameCell.textContent = prefs.name;
-
-                    const daysCell = document.createElement("td");
-                    daysCell.textContent = prefs.workDays.length > 0 ? prefs.workDays.join(", ") : "Нет пожеланий";
-
-                    row.appendChild(nameCell);
-                    row.appendChild(daysCell);
-                    managerView.appendChild(row);
-
-                    found = true;
+        function generateManagerSchedule() {
+            const container = document.getElementById('manager-schedule');
+            container.innerHTML = '';
+            
+            aprilCalendar.forEach(day => {
+                const cell = document.createElement('div');
+                cell.className = 'day-cell' + (day.inactive ? ' inactive' : '');
+                cell.dataset.day = day.num;
+                cell.dataset.weekday = day.weekday;
+                
+                if (day.inactive) {
+                    cell.innerHTML = `${day.num}.${day.month}<br>${day.weekday}`;
+                } else {
+                    cell.innerHTML = `
+                        <div>${day.num}</div>
+                        <div style="font-size: 13px;">${day.weekday}</div>
+                        <div class="employee-list" id="empl-${day.num}"></div>
+                    `;
+                    cell.onclick = () => openAssignModal(day.num, day.weekday);
                 }
+                container.appendChild(cell);
             });
-
-            if (!found) {
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.colSpan = 2;
-                cell.textContent = "Пока нет пожеланий.";
-                row.appendChild(cell);
-                managerView.appendChild(row);
-            }
+            loadScheduleData();
+            loadPreferencesToGrid();
         }
 
-        function clearAllPreferences() {
-            if (confirm("Вы уверены, что хотите очистить все пожелания?")) {
-                const keys = Object.keys(localStorage);
+        function openAssignModal(dayNum, weekday) {
+            document.getElementById('modalTitle').textContent = `День ${dayNum} (${weekday})`;
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">Выберите сотрудника</option>';
+            
+            Object.values(users).forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.phone;
+                option.textContent = user.name;
+                select.appendChild(option);
+            });
+            
+            document.getElementById('assignModal').classList.add('active');
+        }
 
-                keys.forEach(key => {
-                    if (key.startsWith(`schedule_prefs_${month}_`)) {
-                        localStorage.removeItem(key);
+        function saveAssignment() {
+            const dayNum = document.querySelector('#modalTitle').textContent.match(/(\d+)/)[1];
+            const phone = document.getElementById('employeeSelect').value;
+            if (!phone) return alert('Выберите сотрудника!');
+            
+            const sh = document.getElementById('startHour').value.padStart(2,'0');
+            const sm = document.getElementById('startMin').value.padStart(2,'0');
+            const eh = document.getElementById('endHour').value.padStart(2,'0');
+            const em = document.getElementById('endMin').value.padStart(2,'0');
+            
+            const scheduleKey = `final_schedule_${MONTH}_${phone}`;
+            let schedule = JSON.parse(localStorage.getItem(scheduleKey) || '{}');
+            schedule[dayNum] = { time: `${sh}:${sm}-${eh}:${em}` };
+            localStorage.setItem(scheduleKey, JSON.stringify(schedule));
+            
+            loadScheduleData();
+            closeModal();
+        }
+
+        function loadScheduleData() {
+            aprilCalendar.forEach(day => {
+                if (day.inactive) return;
+                const cell = document.querySelector(`[data-day="${day.num}"]`);
+                const emplList = document.getElementById(`empl-${day.num}`);
+                emplList.innerHTML = '';
+                
+                Object.values(users).forEach(user => {
+                    const scheduleKey = `final_schedule_${MONTH}_${user.phone}`;
+                    const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '{}');
+                    if (schedule[day.num]) {
+                        const div = document.createElement('div');
+                        div.className = 'employee-item';
+                        div.textContent = `${user.name}: ${schedule[day.num].time}`;
+                        emplList.appendChild(div);
                     }
                 });
+            });
+        }
 
-                document.getElementById("manager_view").innerHTML = "";
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.colSpan = 2;
-                cell.textContent = "Все пожелания очищены.";
-                row.appendChild(cell);
-                document.getElementById("manager_view").appendChild(row);
+        function loadPreferencesToGrid() {
+            Object.values(users).forEach(user => {
+                const prefKey = `schedule_prefs_${MONTH}_${user.phone}`;
+                const prefs = JSON.parse(localStorage.getItem(prefKey) || '{}');
+                
+                prefs.workDays?.forEach(day => {
+                    const cell = document.querySelector(`[data-day="${day}"]`);
+                    if (cell) cell.classList.add('pref-work');
+                });
+                
+                prefs.offDays?.forEach(day => {
+                    const cell = document.querySelector(`[data-day="${day}"]`);
+                    if (cell) cell.classList.add('pref-off');
+                });
+            });
+        }
+
+        function closeModal() { document.getElementById('assignModal').classList.remove('active'); }
+        function publishSchedule() { alert('✅ График опубликован!'); }
+        function resetSchedule() { 
+            if (confirm('Сбросить весь график?')) {
+                Object.values(users).forEach(user => {
+                    localStorage.removeItem(`final_schedule_${MONTH}_${user.phone}`);
+                });
+                loadScheduleData();
             }
         }
 
-        window.onload = () => {
-            showAllPreferences();
-        };
+        window.onload = showAllPreferences;
     </script>
 </body>
 </html>
